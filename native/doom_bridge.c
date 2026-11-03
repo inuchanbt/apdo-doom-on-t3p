@@ -199,10 +199,16 @@ void pump_begin(int x0,int x1,int y0,int y1,int flags) {
     lcd_begin(x0,y0,x1,y1); reps=(flags&PUMP_DOUBLE)?2:1;ui_window=!!(flags&PUMP_UI);
 }
 void pump_submit(const uint8_t *p,int ncols) {
+#ifdef T3P_INDEXED_FRAME
+    extern void km_index_column(int,int,int,const uint8_t *,unsigned);
+    for(int x=0;x<ncols;x++)
+        for(int r=0;r<reps;r++)km_index_column(px++,py,ph,p+x*ph,ui_window);
+#else
     for(int x=0;x<ncols;x++) {
         for(int y=0;y<ph;y++) column[y]=pump_lut[p[x*ph+y]];
         for(int r=0;r<reps;r++) emit_column(px++,py,ph,column);
     }
+#endif
 }
 void pump_sync(int max) { (void)max; }
 void pump_end(void) {}

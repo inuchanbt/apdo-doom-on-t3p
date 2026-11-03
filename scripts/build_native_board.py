@@ -70,7 +70,7 @@ def main():
             name for name,sha in proven['source_sha256'].items()
             if digest((ROOT/'native'/name).read_bytes())!=sha
         ]
-        allowed_changes={'t3p_bsp.c','bsp_platform.c'} if args.revision in (3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20) else set()
+        allowed_changes={'t3p_bsp.c','bsp_platform.c'} if args.revision in (3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23) else set()
         allowed_changes.update({"t3p_display.h","t3p_bsp.h"})  # DMA alignment is conditional.
         allowed_changes.add("t3p_display.c")
         assert set(changed_sources)<=allowed_changes,changed_sources
@@ -81,19 +81,24 @@ def main():
     toolchain=args.toolchain.resolve();tools=toolchain/'bin'
     names=['runtime_start.S','runtime_memory.c','t3p_signal.c','t3p_boot.c','t3p_bsp.c','t3p_lcd_sequence.c',
            't3p_bsp_native.c','bsp_platform.c']
-    if not args.doom or args.revision in (17,18,19,20):names+=['t3p_display.c']
-    small_pages=args.doom and args.revision in (6,7,9,10,11,12,13,14,15,16,17,18,19,20)
+    if not args.doom or args.revision in (17,18,19,20,21,22,23):names+=['t3p_display.c']
+    small_pages=args.doom and args.revision in (6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)
     expanded_cache=args.doom and args.revision==11
-    cache_pages=60 if expanded_cache else 42 if args.revision in (14,15,16,17,18,19,20) else 48
-    hot_raw_pages=(0x349,0x547,0x007,0x022) if args.revision in (10,11,12,13,14,15,16,17,18,19,20) else ()
-    if args.doom and args.revision in (5,6,7,9,10,11,12,13,14,15,16,17,18,19,20):names+=['t3p_game.c']
-    if args.doom and args.revision in (12,13,14,15,16,17,18,19,20):names+=['../vendor/tinf/tinflate.c']
-    if args.revision in (16,17,18,19,20):
+    cache_pages=60 if expanded_cache else 42 if args.revision in (14,15,16,17,18,19,20,21,22,23) else 48
+    if args.doom and args.revision in (21,22,23):cache_pages=35
+    hot_raw_pages=(0x349,0x547,0x007,0x022) if args.revision in (10,11,12,13,14,15,16,17,18,19,20,21,22,23) else ()
+    if args.doom and args.revision in (5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):names+=['t3p_game.c']
+    if args.doom and args.revision in (12,13,14,15,16,17,18,19,20,21,22,23):names+=['../vendor/tinf/tinflate.c']
+    if args.revision in (16,17,18,19,20,21,22,23):
         hot_raw_pages+=(0x404,0x34e,0x36e,0x440)
-    if args.revision==20:
+    if args.revision in (20,21,22,23):
         hot_raw_pages+=(0x353,0x34f,0x00d,0x441,0x442,0x3b4)
+    if args.revision in (22,23):
+        hot_raw_pages+=(0x555,0x3fd,0x005)
+    if args.revision==23:
+        hot_raw_pages+=(0x229,0x534)
     asset_flags=[]
-    if args.doom and args.revision in (14,15,16,17,18,19,20):
+    if args.doom and args.revision in (14,15,16,17,18,19,20,21,22,23):
         raw=args.game_data.read_bytes()
         for pos in range(256,512,16):
             kind, count, start, size, _=struct.unpack_from('<HHIII',raw,pos)
@@ -102,6 +107,7 @@ def main():
                 assert start<end<=len(raw)
                 asset_flags.extend([f'-DT3P_ASSET_{kind}_START={start}u',f'-DT3P_ASSET_{kind}_END={end}u'])
         assert len(asset_flags)==6
+    if args.doom and args.revision in (21,22,23):names+=["doom_bridge.c"]
     objects=[]
     for name in names:
         obj=out/(Path(name).name+'.o')
@@ -112,17 +118,25 @@ def main():
                '-I',str(toolchain/'include/compiler'),'-I',str(toolchain/'pi32v2-include')]
         if name.endswith('.S'):flags+=['-x','assembler']
         if not args.doom:flags+=['-DT3P_BOARD_BRINGUP']
-        if args.doom and args.revision in (4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20):flags+=['-DT3P_PROFILE']
-        if args.doom and args.revision in (5,6,7,9,10,11,12,13,14,15,16,17,18,19,20):
+        if args.doom and args.revision in (4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):flags+=['-DT3P_PROFILE']
+        if args.doom and args.revision in (5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
             flags+=['-DT3P_PROFILE_ASSETS','-I',str(ROOT/'vendor/tinf')]
             flags+=['-DT3P_GAME_PAGE=2048',f'-DT3P_GAME_SLOTS={cache_pages}'] if small_pages else ['-DT3P_GAME_SLOTS=24']
-        if args.doom and args.revision in (7,9,10,11,12,13,14,15,16,17,18,19,20):flags+=['-DT3P_PROFILE_HOT']
-        if args.doom and args.revision in (9,10,11,12,13,14,15,16,17,18,19,20):flags+=['-DT3P_PROFILE_CACHE']
-        if args.doom and args.revision in (13,14,15,16,17,18,19,20):flags+=['-DT3P_PROFILE_STAGES']
-        if args.doom and args.revision in (15,16,17,18,19,20):flags+=["-DT3P_PROFILE_RAW_RANK"]
-        if args.doom and args.revision in (17,18,19,20):flags+=["-DT3P_DBI_DMA"]
-        if args.doom and args.revision in (18,19,20):flags+=["-DT3P_DBI_ACTIVE_LINE"]
-        if args.doom and args.revision in (19,20):flags+=["-DT3P_DBI_ASYNC"]
+        if args.doom and args.revision in (7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):flags+=['-DT3P_PROFILE_HOT']
+        if args.doom and args.revision in (9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):flags+=['-DT3P_PROFILE_CACHE']
+        if args.doom and args.revision in (13,14,15,16,17,18,19,20,21,22,23):flags+=['-DT3P_PROFILE_STAGES']
+        if args.doom and args.revision in (15,16,17,18,19,20,21,22,23):flags+=["-DT3P_PROFILE_RAW_RANK"]
+        if args.doom and args.revision in (17,18,19,20,21,22,23):flags+=["-DT3P_DBI_DMA"]
+        if args.doom and args.revision in (18,19,20,21,22,23):flags+=["-DT3P_DBI_ACTIVE_LINE"]
+        if args.doom and args.revision in (19,20,21,22,23):flags+=["-DT3P_DBI_ASYNC"]
+        if args.doom and args.revision in (21,22,23):flags+=["-DT3P_INDEXED_FRAME"]
+        if name=="doom_bridge.c":
+            flags+=["-std=gnu11","-fno-common","-fwrapv","-fsigned-char","-DDMC_FW","-DPLAT_HOST",
+                    "-DDMC_SINE_L1","-DKM_CACHE_KIB=4","-DKM_INPUT_AT_FRAME","-DKM_SQUARE_VIEW"]
+            for folder in ("engine","port/data","port/render","port/obj","port/math","platform",
+                           "port/game","port/ovl","gen"):
+                flags+=["-I",str(ROOT/"vendor/dmc100-doom"/folder)]
+        if args.doom and args.revision==23:flags+=["-DT3P_PROFILE_PRESENT"]
         flags+=asset_flags
         if name.endswith('/tinflate.c'):flags+=['-DNDEBUG','-DT3P_TINF_LOCAL_BITS']
         subprocess.run([str(tools/'clang.exe'),*flags,'-c',str(ROOT/'native'/name),'-o',str(obj)],check=True)
@@ -135,7 +149,7 @@ def main():
             from pack_game import pack,verify
             raw=args.game_data.read_bytes()
             assert hashlib.sha256(raw).digest()==asset.read_bytes()[32:64]
-            image=pack(raw,2048,hot_raw_pages,try_strategies=args.revision in (16,17,18,19,20))
+            image=pack(raw,2048,hot_raw_pages,try_strategies=args.revision in (16,17,18,19,20,21,22,23))
             verify(image,raw,2048)
             asset=out/'E1M1-2k.t3pg'
             asset.write_bytes(image)

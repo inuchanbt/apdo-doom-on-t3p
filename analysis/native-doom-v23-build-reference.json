@@ -1,0 +1,188 @@
+{
+  "status": "Hardware rendered E1M1 in the V23 photo test",
+  "purpose": "Actual DOOM engine linked to real MMIO backend",
+  "elf_sha256": "6d5dfcd3c4e0d10dcbb0f500704d4626f7ed6134767897fd81ec7236752d641e",
+  "payload_sha256": "c711c6a6944e0e977dd6a869c500b8dbc1ebb21e0e591e134eae8e02e58d546f",
+  "app_bytes": 1465664,
+  "load_span_bytes": 1376512,
+  "layout": {
+    "status": "OFFLINE SIZE/PLACEMENT CHECKS PASS; not a boot or hardware test",
+    "actual_static_ram_bytes": 165704,
+    "explicit_driver_ram_budget_bytes": 32768,
+    "explicit_stack_budget_bytes": 16384,
+    "remaining_ram_bytes": 3104,
+    "app_flash_budget_bytes": 1465664,
+    "flash_used_including_driver_budget": 1458432,
+    "remaining_app_flash_bytes": 7232,
+    "entry_address": "0xc000100",
+    "reserved_rom_irq_end": "0x101a80",
+    "update_ram_excluded": [
+      "0x136e00",
+      "0x137000"
+    ],
+    "boot_parameters_outside_zeroed_bss": true,
+    "data_source_word_aligned": true,
+    "linked_cli_stack_parameter_save_and_call_targets_checked": true,
+    "ram_sections": [
+      {
+        "begin": "0x101a80",
+        "end": "0x101ad8",
+        "name": ".data"
+      },
+      {
+        "begin": "0x101ad8",
+        "end": "0x101b24",
+        "name": ".boot_state"
+      },
+      {
+        "begin": "0x101b30",
+        "end": "0x12a1d4",
+        "name": ".bss"
+      },
+      {
+        "begin": "0x12a1e0",
+        "end": "0x1321e0",
+        "name": ".driver_ram_budget"
+      },
+      {
+        "begin": "0x132e00",
+        "end": "0x136e00",
+        "name": ".runtime_stack"
+      }
+    ],
+    "device_execution": false,
+    "complete_bsp": false
+  },
+  "initialized_hardware": [
+    "WDT disable",
+    "polling TIMER0 standard24MHz/4096",
+    "DBI nominal6MHz clock selector",
+    "PC0 reset",
+    "stock ST7789V sequence",
+    "synchronous DBI command operations",
+    "LCDPG static open drain"
+  ],
+  "CPU_PLL_and_SFC": "Inherited from stock bootloader, not retuned",
+  "ROM_imports": "No SDK maskrom address bindings",
+  "USB_APP_interface": false,
+  "device_access": false,
+  "device_flashed": true,
+  "device_tested": true,
+  "pending": [
+    "physical cold boot and clock/LCD validation",
+    "input integration beyond known PA11"
+  ],
+  "expected_display": "Actual DOOM renderer; hardware execution pending successful standalone bring-up",
+  "restore": "artifacts/stock-restore-3.0.3/T3P Firmware Version 3.0.3.bin",
+  "source_sha256": {
+    "runtime_start.S": "68a031a5a058282092b35a763073b2ab6d07d04fdf68c0816ea8035cd1768225",
+    "runtime_memory.c": "7ac45b71bc9dc0bd65cee98167d1fbe34e2384e1a0f2535b955214b87fd0e970",
+    "t3p_signal.c": "d4249a642b9a47327f8ceee4e53fb0f5731bdff153830a8e5c1feaaef348d421",
+    "t3p_boot.c": "86be0b3889c7f630f00649b6bee69304e55c743fbd6a7bf36b2a3c66ba00f97d",
+    "t3p_bsp.c": "c65a975bdada0f7d3f124242000e00ab4719ddd76f6d18bc7e2a44787c5fad70",
+    "t3p_lcd_sequence.c": "2a8c2830a2006e419d4ad828e29f7fd8c3fc32b890606fd6fd498750c92cb2a4",
+    "t3p_bsp_native.c": "ebd8ba93dae49334b2f837f49b42aeeb241f7a2c78e916cfb2b6fc40b9fc4484",
+    "bsp_platform.c": "f82c38248442c9a0afaf95694222fd8856ee413d61a1e8c1dce6039ed2398b6a",
+    "t3p_display.c": "03397c4d9a103acae60c00b32960ff7bf53f79d3a31d7a53f7840557465a6866",
+    "t3p_game.c": "1851631408e18f1efb75d135d277f076ecfa2854d0a4b308950c9cbd269069aa",
+    "../vendor/tinf/tinflate.c": "61b977b4b1ddf9161160767ac6475a3e985a4aedbc507e01f05922fdcb893d38",
+    "doom_bridge.c": "91b99584a0437fc934f040cea5b2a78e510e969c27ee19d417a9eca3748967f8",
+    "runtime_layout.ld": "559f78e0589eb86873e459a8a322076ddfc4b27819e46f143f534cee214f35c0",
+    "t3p_boot.h": "324a1d545c9636c506cd0afc549cabd84b56c739247fbb64488c01afd5fbea0b",
+    "t3p_signal.h": "20a7d0d44757f3dbd047d29795734b416365460d11a32dc30b50e92be173f78c",
+    "t3p_bsp.h": "73fa2debe2e9a23c4ef60a093a34ddc7d18b5e16e9411cc7b5f680761c999540",
+    "t3p_display.h": "366c8037352d4326845eead2175ae41cc361769cbe47215b9e00b78539a287f1"
+  },
+  "compiler_sha256": "d4bc97cf421c1ccc373dd8924ce88720ff7457b3f1478d15df4aeda6ae923bce",
+  "game_page_bytes": 2048,
+  "game_cache_pages": 35,
+  "game_forced_raw_pages": [
+    841,
+    1351,
+    7,
+    34,
+    1028,
+    846,
+    878,
+    1088,
+    851,
+    847,
+    13,
+    1089,
+    1090,
+    948,
+    1365,
+    1021,
+    5,
+    553,
+    1332
+  ],
+  "game_sha256": "eab7dc75eaf5f56c1c93248eb608709c25fc693f34f6cd52995f46a964cf7cef",
+  "linker_script_sha256": "252084a6790f29967f640938319fc4cbd5a2dc85c2172e731b187887052e2599",
+  "driver_flash_reserve_bytes": 81920,
+  "image_sha256": "d758833781d1a0460abb31f0e1f4b5afbbca3c14a05d9074df72b63b4e858108",
+  "image_bytes": 1540096,
+  "image_path": "artifacts/native-doom-v23/T3P_NATIVE_DOOM_E1M1_V23_3.0.3.bin",
+  "boot_prefix_20_KiB_identical": true,
+  "other_entries_and_resource_tail_identical": true,
+  "full_redecrypt_matches": true,
+  "all_four_nested_CRCs_rebuilt": true,
+  "hardware_backend_evidence": "analysis/native-bringup-v2-physical-success.json",
+  "changed_sources_since_hardware_test": [
+    "t3p_bsp.c",
+    "bsp_platform.c",
+    "t3p_display.c",
+    "t3p_bsp.h",
+    "t3p_display.h"
+  ],
+  "doom_execution_verified": true,
+  "independent_unpack_verified": true,
+  "independent_stock_entries_matched": 46,
+  "profile_rows": [
+    "doom_init_ms",
+    "frame_ms_excluding_overlay",
+    "lcd_submission_and_wait_ms",
+    "rank_1_page_hi16_decode_ms_lo16",
+    "rank_1_raw_extra_bytes",
+    "rank_2_page_hi16_decode_ms_lo16",
+    "rank_2_raw_extra_bytes",
+    "rank_3_page_hi16_decode_ms_lo16",
+    "rank_3_raw_extra_bytes",
+    "rank_4_page_hi16_decode_ms_lo16",
+    "rank_4_raw_extra_bytes",
+    "asset_read_ms",
+    "page_misses",
+    "core_ICU_CON",
+    "L1P_CON",
+    "SFC_CON",
+    "last_full_present_first_band_to_dma_complete_ms",
+    "compressed_flash_to_sram_ms",
+    "sram_inflate_ms",
+    "flat_and_column_cache_hits",
+    "frame_decodes_of_pages_previously_decoded_since_open"
+  ],
+  "indexed_frame": {
+    "width": 120,
+    "height": 120,
+    "bytes": 14400,
+    "upscale": "2x nearest neighbor"
+  },
+  "game_pack_bytes": 1242852,
+  "hardware_samples": [
+    {
+      "scene": "initial",
+      "frame_ms": 1217,
+      "first_band_to_final_dma_ms": 163
+    },
+    {
+      "scene": "settled",
+      "frame_ms": 966,
+      "first_band_to_final_dma_ms": 163
+    },
+    {
+      "scene": "firing",
+      "frame_ms": 1031,
+      "first_band_to_final_dma_ms": 162
+    }
+  ]
+}

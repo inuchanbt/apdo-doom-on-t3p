@@ -22,6 +22,10 @@ static struct t3p_display display;
 void km_fail(const char *message) __attribute__((noreturn));
 #ifdef T3P_PROFILE
 static uint32_t lcd_ms;
+#ifdef T3P_PROFILE_PRESENT
+static uint32_t present_ms, present_start;
+static uint8_t present_first_band;
+#endif
 #ifdef T3P_PROFILE_ASSETS
 static uint32_t asset_ms;
 #endif
@@ -31,6 +35,12 @@ static int timed_rectangle(void *ctx,uint16_t x0,uint16_t x1,
                            uint32_t count)
 {
     uint32_t start=t3p_bsp_millis(&board);
+#ifdef T3P_PROFILE_PRESENT
+    if(present_first_band) {
+        present_start=start;
+        present_first_band=0;
+    }
+#endif
     int result=t3p_bsp_rectangle(ctx,x0,x1,y0,y1,pixels,count);
     lcd_ms+=t3p_bsp_millis(&board)-start;
     return result;
@@ -159,20 +169,77 @@ void km_layout(int square)
     const struct t3p_display_config cfg={240,240,0,0,240,240};
     if(!square || t3p_display_init(&display,&bus,&cfg))km_fail("layout");
 }
+#ifdef T3P_INDEXED_FRAME
+#define FRAME_SIDE 120
+/* Column-major to match the renderer and the display band's input. */
+static uint8_t indexed_frame[FRAME_SIDE][FRAME_SIDE];
+static uint8_t frame_dirty;
+extern uint16_t pump_lut[256];
+
+static uint8_t palette_index(uint16_t color)
+{
+    unsigned best=0, error=UINT32_MAX;
+    for(unsigned i=0;i<256;i++) {
+        uint16_t candidate=pump_lut[i];
+        if(candidate==color)return (uint8_t)i;
+        int r=(color>>11)-(candidate>>11);
+        int g=((color>>5)&63)-((candidate>>5)&63);
+        int b=(color&31)-(candidate&31);
+        unsigned delta=4*r*r+g*g+4*b*b;
+        if(delta<error){best=i;error=delta;}
+    }
+    return (uint8_t)best;
+}
+#endif
 void km_column(int x,int y,int h,const uint16_t *pixels)
 {
 #ifndef T3P_BOARD_BRINGUP
     fire_pending|=fire_level();
 #endif
+#ifdef T3P_INDEXED_FRAME
+    if(x<0 || x>=240 || y<0 || y>=240 || h<=0 || h>240-y)km_fail("column");
+    if(x&1)return;
+    uint8_t *dest=indexed_frame[x/2];
+    uint16_t previous=0;
+    uint8_t index=0;
+    for(int row=y+(y&1),first=row;row<y+h;row+=2) {
+        uint16_t color=pixels[row-y];
+        if(row==first || color!=previous)index=palette_index(color);
+        dest[row/2]=index;
+        previous=color;
+        frame_dirty=1;
+    }
+#else
     if(t3p_display_column(&display,x,y,h,pixels))km_fail("column");
+#endif
 }
 void km_present(void)
 {
+#ifdef T3P_INDEXED_FRAME
+#ifdef T3P_PROFILE_PRESENT
+    int presenting=frame_dirty;
+    present_first_band=presenting;
+#endif
+    if(frame_dirty) {
+        uint16_t column[240];
+        for(int x=0;x<FRAME_SIDE;x++) {
+            for(int y=0;y<FRAME_SIDE;y++)
+                column[2*y]=column[2*y+1]=pump_lut[indexed_frame[x][y]];
+            for(int r=0;r<2;r++)
+                if(t3p_display_column(&display,2*x+r,0,240,column))km_fail("frame column");
+        }
+        frame_dirty=0;
+    }
+#endif
     if(t3p_display_flush(&display))km_fail("flush");
 #ifdef T3P_DBI_ASYNC
     uint32_t start=t3p_bsp_millis(&board);
     if(t3p_bsp_dma_wait(&board))km_fail("dma drain");
-    lcd_ms+=t3p_bsp_millis(&board)-start;
+    uint32_t end=t3p_bsp_millis(&board);
+    lcd_ms+=end-start;
+#ifdef T3P_PROFILE_PRESENT
+    if(presenting)present_ms=end-present_start;
+#endif
 #endif
 }
 #ifndef T3P_BOARD_BRINGUP
@@ -243,7 +310,24 @@ void km_validate_reads(uint32_t size)
 { if(size!=game_reader.raw_size)km_fail("game size"); }
 void km_set_palette(const uint16_t *colors){(void)colors;}
 void km_index_column(int x,int y,int h,const uint8_t *pixels,unsigned ui)
-{ (void)x;(void)y;(void)h;(void)pixels;(void)ui; }
+{
+#ifdef T3P_INDEXED_FRAME
+    fire_pending|=fire_level();
+    if(ui) {
+        if(x%4==3)return;
+        x-=x/4;
+    }
+    if(x<0 || x>=240 || y<0 || y>=240 || h<=0 || h>240-y)km_fail("indexed column");
+    if(x&1)return;
+    uint8_t *dest=indexed_frame[x/2];
+    for(int row=y+(y&1);row<y+h;row+=2) {
+        dest[row/2]=pixels[row-y];
+        frame_dirty=1;
+    }
+#else
+    (void)x;(void)y;(void)h;(void)pixels;(void)ui;
+#endif
+}
 #else
 static void diagnostic(void)
 {
@@ -310,6 +394,9 @@ void t3p_board_start(void)
 #ifdef T3P_PROFILE
         uint32_t frame_start=km_millis();
         lcd_ms=0;
+#ifdef T3P_PROFILE_PRESENT
+        present_ms=0;
+#endif
 #ifdef T3P_PROFILE_ASSETS
         asset_ms=0;
 #ifdef T3P_ASSET_4_START
@@ -352,7 +439,11 @@ void t3p_board_start(void)
         profile_row(13,board.io.read32(board.io.context,core_base+0x400u));
         profile_row(14,board.io.read32(board.io.context,0xff0500u));
         profile_row(15,board.io.read32(board.io.context,0xfe0200u));
+#ifdef T3P_PROFILE_PRESENT
+        profile_row(16,present_ms);
+#else
         profile_row(16,board.io.read32(board.io.context,core_base+0x240u));
+#endif
 #ifdef T3P_PROFILE_STAGES
         profile_row(17,game_reader.fetch_ms);
         profile_row(18,game_reader.decode_ms);
