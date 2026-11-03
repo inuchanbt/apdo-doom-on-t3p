@@ -1,0 +1,20 @@
+; SPDX-License-Identifier: MIT
+; One command per timed output state: bits 0..1 = DM/DP, bit 2 = finish,
+; bits 3..31 = delay counter. No autopull. Consecutive OUT PINS instructions
+; are counter+6 cycles apart. Finish releases both output enables 3 cycles
+; after the last OUT PINS, before raising IRQ0. No instruction can restart it.
+.program t3p_scope_key
+.wrap_target
+    pull block
+    out pins, 2
+    out y, 1
+    jmp !y delay
+    set pindirs, 0
+    irq 0
+done:
+    jmp done
+delay:
+    out x, 29
+delay_loop:
+    jmp x-- delay_loop
+.wrap

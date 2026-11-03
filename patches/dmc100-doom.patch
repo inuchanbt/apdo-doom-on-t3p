@@ -1,0 +1,268 @@
+diff --git a/engine/d_loop.c b/engine/d_loop.c
+index 7814275..c7f1f58 100644
+--- a/engine/d_loop.c
++++ b/engine/d_loop.c
+@@ -255,6 +255,8 @@ void TryRunTics (void)
+         RunTic(&ticdata[gametic % BACKUPTICS]);
+ 	gametic++;
+ 
++#ifndef KM_INPUT_AT_FRAME
+ 	NetUpdate ();	// check for new console commands
++#endif
+     }
+ }
+diff --git a/engine/d_main.c b/engine/d_main.c
+index ad4de6a..4886473 100644
+--- a/engine/d_main.c
++++ b/engine/d_main.c
+@@ -228,7 +228,9 @@ void D_Display (void)
+ 
+     // menus go directly to the screen
+     M_Drawer ();          // menu is drawn even on top of everything
++#ifndef KM_INPUT_AT_FRAME
+     NetUpdate ();         // send out any new accumulation
++#endif
+ 
+     // The melt wipe is not drawn. Its setup takes one M_Random value
+     // per screen column, take the same values to keep rndindex in step.
+diff --git a/engine/r_main.c b/engine/r_main.c
+index 71f1f5d..34dc5cc 100644
+--- a/engine/r_main.c
++++ b/engine/r_main.c
+@@ -463,7 +463,12 @@ fixed_t R_ScaleFromGlobalAngle (angle_t visangle)
+ //
+ int R_ViewAngleToX (unsigned angle)
+ {
++#ifdef KM_SQUARE_VIEW
++    extern int km_square_angle_to_x(unsigned);
++    return km_square_angle_to_x(angle);
++#else
+     return dmc_viewangletox(detailshift, angle);
++#endif
+ }
+ 
+ 
+@@ -500,7 +505,11 @@ void R_ExecuteSetViewSize (void)
+ {
+     setsizeneeded = false;
+ 
++#ifdef KM_SQUARE_VIEW
++    scaledviewwidth = 240;
++#else
+     scaledviewwidth = SCREENWIDTH;
++#endif
+     viewheight = SCREENHEIGHT;
+     
+     detailshift = setdetail;
+@@ -514,7 +523,14 @@ void R_ExecuteSetViewSize (void)
+ 
+     colfunc = R_DrawColumn;
+ 
++#ifdef KM_SQUARE_VIEW
++    extern void km_square_projection(int);
++    extern unsigned short km_square_xtva[];
++    km_square_projection(viewwidth);
++    r_xtva = km_square_xtva;
++#else
+     r_xtva = detailshift ? dmc_xtva_low : dmc_xtva_high;
++#endif
+     clipangle = R_XToViewAngle(0);
+     
+     // psprite scales
+diff --git a/engine/r_main.h b/engine/r_main.h
+index 2184bb8..26afbcf 100644
+--- a/engine/r_main.h
++++ b/engine/r_main.h
+@@ -86,7 +86,11 @@ extern const uint8_t		dmc_light_dist[MAXLIGHTZ];
+ 
+ static inline lighttable_t* R_ScaleLight (int lightnum, unsigned index)
+ {
+-    int	level = R_STARTMAP(lightnum) - (int)(index >> 1);
++#ifdef KM_SQUARE_VIEW
++    int level = R_STARTMAP(lightnum) - (int)(index * 320 / (240 * 2));
++#else
++    int level = R_STARTMAP(lightnum) - (int)(index >> 1);
++#endif
+ 
+     if (level < 0)
+ 	level = 0;
+diff --git a/engine/r_plane.c b/engine/r_plane.c
+index b172de9..f2fdfc0 100644
+--- a/engine/r_plane.c
++++ b/engine/r_plane.c
+@@ -41,6 +41,12 @@
+ #include "fixed.h"
+ #include "r_strip.h"
+ #include "trig_tables.h"
++#ifdef KM_SQUARE_VIEW
++extern int32_t km_square_yslope[200];
++#define KM_YSLOPE(y) km_square_yslope[y]
++#else
++#define KM_YSLOPE(y) dmc_yslope_tab[y]
++#endif
+ 
+ 
+ rplane_t		floorplane;
+@@ -137,7 +143,7 @@ R_MapPlane
+     unsigned	index;
+     unsigned	position;
+ 	
+-    distance = FixedMulI (planeheight, dmc_yslope_tab[y]);
++    distance = FixedMulI (planeheight, KM_YSLOPE(y));
+     xstep = FixedMulI (distance,basexscale);
+     ystep = FixedMulI (distance,baseyscale);
+     length = FixedMulI (distance,distscale0);
+diff --git a/platform/lcd.h b/platform/lcd.h
+index b402717..8431c7a 100644
+--- a/platform/lcd.h
++++ b/platform/lcd.h
+@@ -70,6 +70,7 @@ void lcd_recover(void);
+ // Palette LUT used by the pump, RGB565 per palette index.
+ extern uint16_t pump_lut[256];
+ 
++#define PUMP_UI 2  // KM003C: retain all 320 UI columns when resizing the world
+ #define PUMP_DOUBLE 1  // low detail: every submitted column is sent twice
+ 
+ // Opens the window x0..x1, y0..y1 (one RAMWR). Column height h = y1 - y0 + 1 must be a
+diff --git a/port/render/r_band.c b/port/render/r_band.c
+index 3b62ae0..04ebe40 100644
+--- a/port/render/r_band.c
++++ b/port/render/r_band.c
+@@ -84,7 +84,7 @@ void R_PaletteChanged(void)
+ 
+ void R_BandCompose(int x0, int x1, int lcdy, int y0, int h, void (*draw)(void))
+ {
+-    R_PumpWindow(x0, x1, lcdy, lcdy + h - 1, 0);
++    R_PumpWindow(x0, x1, lcdy, lcdy + h - 1, PUMP_UI);
+     for (int a = x0; a <= x1;) {
+         int bytes;
+         uint8_t *buf = R_BandBuffer(&bytes);
+diff --git a/port/render/r_frame.c b/port/render/r_frame.c
+index 0cfa857..075b40f 100644
+--- a/port/render/r_frame.c
++++ b/port/render/r_frame.c
+@@ -380,7 +380,7 @@ void R_DrawFrame(int tempscreen)
+     R_RenderBSPPass();
+ 
+     if (!tempscreen)
+-        R_PumpWindow(0, SCREENWIDTH - 1, 0, R_VIEWH - 1, detailshift ? PUMP_DOUBLE : 0);
++        R_PumpWindow(0, scaledviewwidth - 1, 0, R_VIEWH - 1, detailshift ? PUMP_DOUBLE : 0);
+     for (int s0 = 0; s0 < viewwidth; s0 += lay.w) {
+         int s1 = s0 + lay.w < viewwidth ? s0 + lay.w : viewwidth;
+         cur ^= 1;
+diff --git a/port/render/r_inner.c b/port/render/r_inner.c
+index 8a17589..3bfb9e9 100644
+--- a/port/render/r_inner.c
++++ b/port/render/r_inner.c
+@@ -9,6 +9,12 @@
+ 
+ #include "r_strip.h"
+ #include "trig_tables.h"
++#ifdef KM_SQUARE_VIEW
++extern int32_t km_square_yslope[200];
++#define KM_YSLOPE(y) km_square_yslope[y]
++#else
++#define KM_YSLOPE(y) dmc_yslope_tab[y]
++#endif
+ 
+ void R_ColumnLoop(uint8_t *dest, int n, uint32_t pos, uint32_t step, int sh, const uint8_t *src,
+                   const uint8_t *cmap)
+@@ -96,7 +102,7 @@ void R_FillRow(uint8_t *dest, int n, uint8_t c)
+ // 0..31.
+ static inline int solid_row(int32_t planeheight, int y, int startmap)
+ {
+-    uint32_t d = (uint32_t)(int32_t)(((int64_t)planeheight * dmc_yslope_tab[y]) >> 16) >> 20;
++    uint32_t d = (uint32_t)(int32_t)(((int64_t)planeheight * KM_YSLOPE(y)) >> 16) >> 20;
+     int row = startmap - dmc_light_dist[d > 127 ? 127 : d];
+     if (row < 0)
+         row = 0;
+@@ -109,7 +115,7 @@ static inline int solid_row(int32_t planeheight, int y, int startmap)
+ // product >> 4, which one usat clamps to 0..127.
+ static inline int solid_row_low(int32_t planeheight, int y, int startmap)
+ {
+-    int d = (int32_t)(((int64_t)planeheight * dmc_yslope_tab[y]) >> 32) >> 4;
++    int d = (int32_t)(((int64_t)planeheight * KM_YSLOPE(y)) >> 32) >> 4;
+     int row = startmap - dmc_light_dist[d < 0 ? 0 : d > 127 ? 127 : d];
+     if (row < 0)
+         row = 0;
+@@ -151,7 +157,7 @@ void R_SolidColumn(uint8_t *dest, int y, int n, int32_t planeheight, int c, int
+                 pe = R_VIEWH / 2;
+             hy = pe - 1;
+         }
+-        int search = (((int64_t)planeheight * dmc_yslope_tab[hy]) >> 47) == 0;
++        int search = (((int64_t)planeheight * KM_YSLOPE(hy)) >> 47) == 0;
+         if (!search)
+             pe = y + 1;
+         int row = solid_row(planeheight, y, startmap);
+diff --git a/tools/conv/upstream.py b/tools/conv/upstream.py
+index 28d955d..2a472b8 100644
+--- a/tools/conv/upstream.py
++++ b/tools/conv/upstream.py
+@@ -10,6 +10,7 @@ import concurrent.futures
+ import json
+ import os
+ import re
++import shutil
+ import subprocess
+ 
+ from . import format as F
+@@ -100,7 +101,7 @@ def build():
+     mkdirs(objdir)
+     jobs = [(os.path.join(UPSTREAM, n + ".c"), os.path.join(objdir, n + ".o"), ()) for n in ENGINE]
+     jobs.append((os.path.join(DUMPER_SRC, "dump_spec.c"), os.path.join(objdir, "dump_spec.o"), ()))
+-    jobs.append((os.path.join(DUMPER_SRC, "dump_info.c"), os.path.join(objdir, "dump_info.o"), ("-g",)))
++    jobs.append((os.path.join(DUMPER_SRC, "dump_info.c"), os.path.join(objdir, "dump_info.o"), ("-gdwarf",)))
+     objs = _compile_all(jobs, objdir)
+     # Action functions referenced by the state table, from the undefined symbols of info.o.
+     syms = sorted(set(re.findall(r"\b(A_\w+)", _run([NM, "-u", os.path.join(objdir, "info.o")]))))
+@@ -121,7 +122,7 @@ def build():
+     write_if_changed(str_c, "\n".join(strs))
+     objs += _compile_all([(act_c, os.path.join(objdir, "actions.o"), ()),
+                           (str_c, os.path.join(objdir, "strings.o"), ())], objdir)
+-    exe = os.path.join(OUT, "dump_info")
++    exe = os.path.join(OUT, "dump_info.exe" if os.name == "nt" else "dump_info")
+     if _stale(exe, objs):
+         tmp = tmp_name(exe)
+         _run([CC, "-o", tmp] + objs + ["-lm"])
+@@ -131,6 +132,41 @@ def build():
+ 
+ def _dwarf_enums(obj):
+     """{typedef name: [(enumerator, value)]} from llvm-dwarfdump text output."""
++    if os.name == "nt" and not shutil.which(DWARFDUMP):
++        # LLVM-MinGW omits dwarfdump. Ask the same compiler for its evaluated
++        # enum declarations instead; this still uses the pinned upstream types.
++        ast = json.loads(_run([CC] + CFLAGS + ["-Xclang", "-ast-dump=json",
++                                             "-fsyntax-only", os.path.join(DUMPER_SRC, "dump_info.c")]))
++        enum_by_id = {}
++        typedefs = []
++        def visit(node):
++            if node.get("kind") == "EnumDecl" and "inner" in node:
++                value, vals = -1, []
++                for child in node["inner"]:
++                    if child.get("kind") != "EnumConstantDecl":
++                        continue
++                    value += 1
++                    for expr in child.get("inner", []):
++                        if expr.get("kind") == "ConstantExpr" and "value" in expr:
++                            value = int(expr["value"], 0)
++                    vals.append((child["name"], value))
++                enum_by_id[node["id"]] = vals
++            if node.get("kind") == "TypedefDecl":
++                typedefs.append(node)
++            for child in node.get("inner", []):
++                visit(child)
++        visit(ast)
++        out = {}
++        for node in typedefs:
++            pending = list(node.get("inner", []))
++            while pending:
++                child = pending.pop()
++                ref = child.get("ownedTagDecl", child.get("decl", {})).get("id")
++                if ref in enum_by_id:
++                    out[node["name"]] = enum_by_id[ref]
++                    break
++                pending.extend(child.get("inner", []))
++        return out
+     text = _run([DWARFDUMP, "--debug-info", obj])
+     entries = []
+     cur = None

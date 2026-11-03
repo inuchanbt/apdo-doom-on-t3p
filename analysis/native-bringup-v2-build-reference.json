@@ -1,0 +1,119 @@
+{
+  "status": "V2 physical display and moving marker verified",
+  "purpose": "Standalone LCD/clock/memory bring-up; no DOOM",
+  "elf_sha256": "0056c1869b25990f84cc432ebad7a4e33ebc9819ffb5a2238ee3d1c60e83cc73",
+  "payload_sha256": "2578044c7d5914558a30562c8292c05db7190799997b6be77f6f924e244ac1a2",
+  "app_bytes": 1465664,
+  "load_span_bytes": 4528,
+  "layout": {
+    "status": "OFFLINE SIZE/PLACEMENT CHECKS PASS; not a boot or hardware test",
+    "actual_static_ram_bytes": 4004,
+    "explicit_driver_ram_budget_bytes": 32768,
+    "explicit_stack_budget_bytes": 16384,
+    "remaining_ram_bytes": 164816,
+    "app_flash_budget_bytes": 1465664,
+    "flash_used_including_driver_budget": 102832,
+    "remaining_app_flash_bytes": 1362832,
+    "entry_address": "0xc000100",
+    "reserved_rom_irq_end": "0x101a80",
+    "update_ram_excluded": [
+      "0x136e00",
+      "0x137000"
+    ],
+    "boot_parameters_outside_zeroed_bss": true,
+    "data_source_word_aligned": true,
+    "linked_cli_stack_parameter_save_and_call_targets_checked": true,
+    "ram_sections": [
+      {
+        "begin": "0x101a80",
+        "end": "0x101a84",
+        "name": ".data"
+      },
+      {
+        "begin": "0x101a84",
+        "end": "0x101ad0",
+        "name": ".boot_state"
+      },
+      {
+        "begin": "0x101ad0",
+        "end": "0x102a24",
+        "name": ".bss"
+      },
+      {
+        "begin": "0x102a30",
+        "end": "0x10aa30",
+        "name": ".driver_ram_budget"
+      },
+      {
+        "begin": "0x132e00",
+        "end": "0x136e00",
+        "name": ".runtime_stack"
+      }
+    ],
+    "device_execution": false,
+    "complete_bsp": false
+  },
+  "initialized_hardware": [
+    "WDT disable",
+    "polling TIMER0 standard24MHz/4096",
+    "DBI nominal6MHz clock selector",
+    "PC0 reset",
+    "stock ST7789V sequence",
+    "synchronous DBI command operations",
+    "LCDPG static open drain"
+  ],
+  "CPU_PLL_and_SFC": "Inherited from stock bootloader, not retuned",
+  "ROM_imports": "No SDK maskrom address bindings",
+  "USB_APP_interface": false,
+  "device_access": false,
+  "device_flashed": true,
+  "device_tested": true,
+  "pending": [
+    "physical cold boot and clock/LCD validation",
+    "input integration beyond known PA11"
+  ],
+  "expected_display": "RGB bars, white border/top strip, black horizontal middle strip, white block moving along bottom",
+  "restore": "artifacts/stock-restore-3.0.3/T3P Firmware Version 3.0.3.bin",
+  "source_sha256": {
+    "runtime_start.S": "68a031a5a058282092b35a763073b2ab6d07d04fdf68c0816ea8035cd1768225",
+    "runtime_memory.c": "7ac45b71bc9dc0bd65cee98167d1fbe34e2384e1a0f2535b955214b87fd0e970",
+    "t3p_signal.c": "d4249a642b9a47327f8ceee4e53fb0f5731bdff153830a8e5c1feaaef348d421",
+    "t3p_boot.c": "86be0b3889c7f630f00649b6bee69304e55c743fbd6a7bf36b2a3c66ba00f97d",
+    "t3p_bsp.c": "e86cae9bf7d60e7b1f91f399a156a91adcd1973c189b76e8d4eb4df517021d7a",
+    "t3p_lcd_sequence.c": "2a8c2830a2006e419d4ad828e29f7fd8c3fc32b890606fd6fd498750c92cb2a4",
+    "t3p_bsp_native.c": "ebd8ba93dae49334b2f837f49b42aeeb241f7a2c78e916cfb2b6fc40b9fc4484",
+    "bsp_platform.c": "b53b20386c1b0baf7c0b7a4a570fb610d618922b2fc68cafe9ed8371aa5b52ef",
+    "t3p_display.c": "99401b29f13e27c499bdac15e1f1a3539d58d8e8988a09d49fa74961dfb546da",
+    "runtime_layout.ld": "559f78e0589eb86873e459a8a322076ddfc4b27819e46f143f534cee214f35c0",
+    "t3p_boot.h": "324a1d545c9636c506cd0afc549cabd84b56c739247fbb64488c01afd5fbea0b",
+    "t3p_signal.h": "20a7d0d44757f3dbd047d29795734b416365460d11a32dc30b50e92be173f78c",
+    "t3p_bsp.h": "e699e63e480adb950c2b06bd498bcacfe9c55aae6c91c4aa0cbc84ecd548779f",
+    "t3p_display.h": "ccf97ea581dc9ec1a3fb399b2887ad00f73b30676e11cd443ad1cec8e38c6598"
+  },
+  "compiler_sha256": "d4bc97cf421c1ccc373dd8924ce88720ff7457b3f1478d15df4aeda6ae923bce",
+  "image_sha256": "e05f4c2b78ed7c2e064706578bf2caa91fafae607be619d4b9286051b631fa9b",
+  "image_bytes": 1540096,
+  "image_path": "artifacts/native-bringup-v2/T3P_NATIVE_BRINGUP_V2_3.0.3.bin",
+  "boot_prefix_20_KiB_identical": true,
+  "other_entries_and_resource_tail_identical": true,
+  "full_redecrypt_matches": true,
+  "all_four_nested_CRCs_rebuilt": true,
+  "revision": 2,
+  "changes": [
+    "Stock-matched LCD pin DIE=1 and DIR=0",
+    "Watchdog stopped before boot snapshot",
+    "Timer-independent entry signal and repeating error blink count"
+  ],
+  "error_blink_codes": {
+    "1": "boot handoff validation",
+    "2": "timer start",
+    "3": "LCD initialization or reset delay",
+    "4": "drawing or animation"
+  },
+  "independent_unpack_verified": true,
+  "unchanged_extracted_files_compared": 46,
+  "independent_unpack_directory": "local/native-bringup-v2-unpacked-e05f4c2b78ed",
+  "host_bsp_checks_pass": true,
+  "runtime_layout_checks_pass": true,
+  "physical_evidence": "analysis/native-bringup-v2-physical-success.json"
+}

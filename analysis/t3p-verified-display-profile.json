@@ -1,0 +1,16 @@
+{
+  "scope": "Practical visible coordinates and RGB565 values for the preserved stock SPI/DMA path",
+  "width": 240,
+  "height": 240,
+  "offset_x": 0,
+  "offset_y": 0,
+  "x_direction": "right",
+  "y_direction": "down",
+  "pixel_format": "RGB565",
+  "extra_RB_swap": false,
+  "extra_pixel_byte_swap": false,
+  "evidence": "analysis/lcd-geometry-physical-success.json",
+  "photo_sha256": "8d228a3fa9a3f882b719512eebfdfd341a6f1260fbaf10d51e5a3a288079d59e",
+  "raw_controller_address_limit_measured": false,
+  "independent_panel_initialization_verified": false
+}

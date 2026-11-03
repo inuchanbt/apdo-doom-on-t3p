@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.13)
+set(PICO_BOARD_HEADER_DIRS "${CMAKE_CURRENT_LIST_DIR}/boards")
+set(PICO_BOARD t3p_waveshare_usb_cm CACHE STRING "Exact diagnostic board")
+include("${CMAKE_CURRENT_LIST_DIR}/../../local/pico-sdk/pico_sdk_init.cmake")
+project(t3p_cm_input_check C CXX ASM)
+set(CMAKE_C_STANDARD 11)
+pico_sdk_init()
+add_executable(t3p_cm_input_check main.c)
+target_link_libraries(t3p_cm_input_check pico_stdlib)
+target_compile_options(t3p_cm_input_check PRIVATE -Wall -Wextra -Werror)
+target_compile_definitions(t3p_cm_input_check PRIVATE
+    PICO_STDIO_USB_ENABLE_RESET_VIA_BAUD_RATE=0
+    PICO_STDIO_USB_ENABLE_RESET_VIA_VENDOR_INTERFACE=0)
+pico_enable_stdio_uart(t3p_cm_input_check 0)
+pico_enable_stdio_usb(t3p_cm_input_check 1)
+pico_set_program_name(t3p_cm_input_check "T3P CM input-only check")
+pico_set_program_version(t3p_cm_input_check "0.2")
+pico_add_extra_outputs(t3p_cm_input_check)

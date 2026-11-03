@@ -1,0 +1,10 @@
+{
+  "image_path": "artifacts/native-doom-integration/T3P_NATIVE_DOOM_E1M1_3.0.3.bin",
+  "image_sha256": "a000735bf8b3f63295ba968ef18dc5e8853e71d8cd9417b4d6b194fedf0502db",
+  "writer": "user",
+  "photo_sha256": "06beeaf518d5f274191efd1be516a4e34e8604c17602983b3fdac1a934a214da",
+  "observed": "T3P LCD displays E1M1 starting room, pistol and HUD with ammo 50 and health 100%",
+  "boot_and_render_verified": true,
+  "input_verified": false,
+  "frame_rate_measured": false
+}

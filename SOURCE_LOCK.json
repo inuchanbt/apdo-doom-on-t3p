@@ -1,0 +1,126 @@
+{
+  "DMC100-Doom": {
+    "url": "https://github.com/ArturBieniek4/DMC100-Doom",
+    "revision": "0cdc78eb66cdddacc43112d5f79c258c4a5440b7",
+    "import": "Patched source subset copied from D:/doom_on_km003c/vendor/dmc100-doom",
+    "license": "GPL-2.0-or-later and per-file upstream notices",
+    "local_changes": "patches/dmc100-doom.patch is already applied"
+  },
+  "doomgeneric": {
+    "url": "https://github.com/ozkl/doomgeneric",
+    "revision": "dcb7a8dbc7a16ce3dda29382ac9aae9d77d21284"
+  },
+  "jl-misctools": {
+    "url": "https://github.com/kagaimiq/jl-misctools",
+    "revision": "0a5b12db0ef38f3042acffbe2452730a37fd2405",
+    "license": "MIT",
+    "local_changes": "vendor/jl-misctools/UPSTREAM.md"
+  },
+  "jieli-sdk-research-only": {
+    "url": "https://gitlab.zh-jieli.com/e_badge/e_badge_707_sdk_200.git",
+    "revision": "d0167685d032d745d88fe50233302edd46941622",
+    "path": "local/jieli-sdk",
+    "research_files": {
+      "SDK/cpu/br35/tools/rom.image": "12341f7db1d764b865466c8d54447b53d8faabe9867ec728752d44085dd0c8f7",
+      "SDK/cpu/br35/tools/br35loader.bin": "1295a01d5a89ad42e9eda6b87acfe7d543ab68293d4087c3dda9bf9ab472dae1",
+      "SDK/cpu/br35/liba/cpu.a": "787b6fc0913a0a8a634ee8c7606d5e4a68dc5604d8feacf806fd60dc1e2fc8ca",
+      "SDK/cpu/br35/liba/common_lib.a": "370cc5dd13e6b636f61c5122302dc1dd3be01ffa9a2dcef256d8b5e3091b8dcd",
+      "SDK/cpu/br35/liba/device.a": "e6cad5ce44970000c1631275f6b2175a7c68a0f191a2c66af8dee4c0d9f8fb3e",
+      "SDK/cpu/br35/power/power_gate.c": "c9fbd3658e5744b4b7fe9cc7ad40149a867bddfd64aff366b76a59843dfb0651"
+    },
+    "distribution": "Not included in a project release; no blanket open-source license assumed"
+  },
+  "jieli-windows-toolchain": {
+    "url": "https://jl-update.oss-cn-shenzhen.aliyuncs.com/2.5.3.exe",
+    "official_redirect": "https://pkgman.jieliapp.com/s/win-toolchain",
+    "sha256": "399bd518a28e47a7a0394506cebd5bf658748a58cd6b7c02512e24b4b88c5a5e",
+    "compiler_sha256": "d4bc97cf421c1ccc373dd8924ce88720ff7457b3f1478d15df4aeda6ae923bce",
+    "use": "Extracted locally, installer not executed; compiler target pi32v2/r3"
+  },
+  "innoextract": {
+    "url": "https://github.com/dscharrer/innoextract/releases/download/1.9/innoextract-1.9-windows.zip",
+    "sha256": "6989342c9b026a00a72a38f23b62a8e6a22cc5de69805cf47d68ac2fec993065",
+    "use": "Local extraction tool, not included in a project release"
+  },
+  "tinf": {
+    "url": "https://github.com/jibsen/tinf",
+    "revision": "57ffa1f1d5e3dde19011b2127bd26d01689b694b",
+    "license": "Zlib",
+    "path": "vendor/tinf",
+    "tinflate_c_sha256": "61b977b4b1ddf9161160767ac6475a3e985a4aedbc507e01f05922fdcb893d38",
+    "modifications": "Optional T3P_TINF_LOCAL_BITS symbol decoder optimization, used by native V12 and later"
+  },
+  "game_data": {
+    "name": "Freedoom 0.13.0, existing KM003C converted E1M1 pack",
+    "raw_bytes": 2802000,
+    "raw_sha256": "6b25a4f1adb6f1f1f5f42226c272b93ccff4f356ac8d7034cf83712b2da70c08",
+    "compressed_bytes": 1189607,
+    "compressed_sha256": "3247cfe10f0d01ac54d5f1ffb4f92485cf449151b0d9e445f8f0e5df72e3d846",
+    "format": "T3PGAME1 version 1"
+  },
+  "pico-sdk": {
+    "url": "https://github.com/raspberrypi/pico-sdk",
+    "revision": "a1438dff1d38bd9c65dbd693f0e5db4b9ae91779",
+    "version": "2.2.0",
+    "path": "local/pico-sdk",
+    "use": "Auxiliary RP2350 diagnostic only",
+    "license": "BSD-3-Clause and individual source notices"
+  },
+  "tinyusb": {
+    "url": "https://github.com/hathach/tinyusb",
+    "revision": "86ad6e56c1700e85f1c5678607a762cfe3aa2f47",
+    "path": "local/pico-sdk/lib/tinyusb",
+    "license": "MIT",
+    "use": "Pico SDK submodule, auxiliary diagnostic USB CDC"
+  },
+  "arm-gnu-toolchain": {
+    "url": "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+    "sha256": "f074615953f76036e9a51b87f6577fdb4ed8e77d3322a6f68214e92e7859888f",
+    "bytes": 312299563,
+    "use": "Local auxiliary RP2350 board research/build input"
+  },
+  "picotool": {
+    "url": "https://github.com/raspberrypi/pico-sdk-tools/releases/download/v2.2.0-4/picotool-2.2.0-a4-x64-win.zip",
+    "sha256": "42cd263ed17dd3987d0830fa239424b3958ec0407afd6985bfbf83a5fc5a55f2",
+    "bytes": 1707948,
+    "use": "Local auxiliary RP2350 board research/build input"
+  },
+  "cmake-wheel": {
+    "url": "https://pypi.org/project/cmake/3.31.6/",
+    "sha256": "bbaed969cef3c427f4f17591feb28db4ae595e3a4bbd45cb35522cee14df6a32",
+    "bytes": 36396448,
+    "use": "Local auxiliary RP2350 board research/build input"
+  },
+  "ninja-wheel": {
+    "url": "https://pypi.org/project/ninja/1.11.1.3/",
+    "sha256": "04d48d14ea7ba11951c156599ab526bdda575450797ff57c6fdf99b2554d09c7",
+    "bytes": 296502,
+    "use": "Local auxiliary RP2350 board research/build input"
+  },
+  "waveshare-cm-schematic": {
+    "url": "https://raw.githubusercontent.com/waveshareteam/RP2350-USB-C/774cbb1e8ecc9d5cc8474ba9feb90a0939047f3b/hardware/schematics/RP2350-USB-CM.pdf",
+    "sha256": "92dd2d21fe9dd95bc03b4489392199cf5fa4ff124deac22c5a3dcbfc3b0eabd0",
+    "bytes": 366080,
+    "use": "Local auxiliary RP2350 board research/build input"
+  },
+  "Pico-PIO-USB": {
+    "url": "https://github.com/sekigon-gonnoc/Pico-PIO-USB",
+    "revision": "b186e36bea0f3bcc2ee94ca1fa81e7f71281443a",
+    "path": "local/Pico-PIO-USB",
+    "license": "MIT",
+    "use": "Auxiliary CM native CDC + PIO host; upstream source unmodified, adapted CDC example retains notices"
+  },
+  "pico-sdk-tools": {
+    "url": "https://github.com/raspberrypi/pico-sdk-tools/releases/download/v2.2.0-4/pico-sdk-tools-2.2.0-x64-win.zip",
+    "sha256": "be536f01d01c66309a492291a22de4f82120c07e74c12d2dcbd0f70a35846888",
+    "bytes": 869033,
+    "release_digest_verified": true,
+    "use": "Local PIO assembler 2.2.0, not installed system-wide"
+  },
+  "RIGOL-MHO900-programming-guide": {
+    "url": "https://www.rigol.com/dam/global/downloads/brochures/en/program-guide/oscilloscopes/MHO900-ProgrammingGuide.pdf",
+    "sha256": "a671c065bd04a85d05e9d4cef732df3ba4884c2218054f64d1a83fb5a43cffd5",
+    "bytes": 6558342,
+    "use": "Local instrument-command reference, not a release asset"
+  }
+}

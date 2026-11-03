@@ -1,0 +1,10 @@
+{
+  "image_sha256": "e05f4c2b78ed7c2e064706578bf2caa91fafae607be619d4b9286051b631fa9b",
+  "writer": "user",
+  "physical_display_confirmed": true,
+  "moving_marker_confirmed": true,
+  "observed": "RGB vertical bars, black middle band, and white marker moving right in successive 0.5s samples",
+  "video_sha256": "3fa481b07085c4663cd6e14653b7c9663b43384ee29df6c8882391f11e1c8613",
+  "cold_boot_separately_verified": false,
+  "doom_executed": false
+}

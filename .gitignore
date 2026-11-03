@@ -1,0 +1,10 @@
+Atorch/
+local/
+artifacts/
+__pycache__/
+*.pyc
+analysis/*.disasm.txt
+analysis/manual-preview.png
+analysis/app-*-strings.json
+analysis/pc-strings.txt
+analysis/pc-slots.json
