@@ -2,7 +2,7 @@
 
 [日本語](README.ja.md)
 
-This experimental native port runs Freedoom E1M1 on the ATORCH T3P's own 240×240 LCD. The left physical button fired the weapon in a hardware test. The current milestone is **V23**, tested on the device.
+This experimental native port runs Freedoom E1M1 on the ATORCH T3P's own 240×240 LCD. The left physical button fired the weapon in a hardware test. The current milestone is **V26**, tested on the device.
 
 ## Bring-up and performance
 
@@ -13,6 +13,10 @@ This experimental native port runs Freedoom E1M1 on the ATORCH T3P's own 240×24
 - Two V20 samples took about **0.87–0.93 s per frame**, including about **0.59–0.63 s of DEFLATE decoding**. These are diagnostic snapshots from the start area. The left-to-right redraw is still visible. Touch, motion sensors, audio and full game controls remain unfinished.
 
 - V21 buffers a complete 120×120 indexed frame and upscales it to 240×240 at presentation. The left-to-right redraw became less noticeable, though it is still visible during firing. V22 and V23 bypass DEFLATE for five more hot pages. V23 measured **1,217 ms initially, 966 ms after settling, and 1,031 ms around firing**. The interval from first band submission through final DMA completion was **162–163 ms**.
+
+- V24 changed the DBI divider selector from 3 to 2. Measured presentation dropped to **83–84 ms**, and firing redraw became less noticeable. The earlier nominal 8 MHz estimate is unverified because the observed timing did not match that estimate.
+- V25 stored seven additional pages uncompressed. Its initial, settled and firing snapshots measured **1,040 / 704 / 900 ms per frame**, with **642 / 436 / 560 ms** of decoding. V26's four-byte match-copy experiment showed no clear improvement in the three photo samples.
+- **V27 is prepared and awaiting a device result.** It uses a 7-bit Huffman prefix table, with the V26 match-copy option disabled. Host checks covered 1,369 pages, 5,000 random reads and 420 streams including stored-block transitions.
 
 ## Repository layout
 

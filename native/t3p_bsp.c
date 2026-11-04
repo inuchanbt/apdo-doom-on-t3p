@@ -217,7 +217,10 @@ int t3p_bsp_lcd_init(struct t3p_bsp *b)
     if(!b || !b->ready || b->failed)return -2;
     /* Stock DBI clock row9: source3, div0, div3, nominal6MHz. Retain all
      * unrelated bits and preserve the bootloader's CPU/Flash clock settings. */
-    change(b,DISPLAY_CLOCK,0x2ffu,3u|(3u<<6));
+#ifndef T3P_DBI_CLOCK_DIV
+#define T3P_DBI_CLOCK_DIV 3u
+#endif
+    change(b,DISPLAY_CLOCK,0x2ffu,3u|(T3P_DBI_CLOCK_DIV<<6));
     change(b,DISPLAY_CLOCK,0,(1u<<9)|(1u<<10));
     wr(b,DBI+0x0c,0);wr(b,DBI+0x28,0);wr(b,PCLR,15);
     /* Hardware owns PA7 CS, PA8 data, PA9 command/data, PA12 clock. */

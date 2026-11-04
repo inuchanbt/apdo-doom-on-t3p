@@ -35,6 +35,9 @@
 /* -- Internal data structures -- */
 
 struct tinf_tree {
+#ifdef T3P_TINF_PREFIX
+    unsigned short fast[128];
+#endif
 	unsigned short counts[16]; /* Number of codes with a given length */
 	unsigned short symbols[288]; /* Symbols sorted by code */
 	int max_sym;
@@ -62,6 +65,28 @@ static unsigned int read_le16(const unsigned char *p)
 	return ((unsigned int) p[0])
 	     | ((unsigned int) p[1] << 8);
 }
+
+#ifdef T3P_TINF_PREFIX
+/* Entries contain code length in the high bits and the symbol in nine bits. */
+static void tinf_build_fast(struct tinf_tree *t)
+{
+    unsigned code=0, base=0;
+    for(unsigned i=0;i<128;i++)t->fast[i]=0;
+    for(unsigned length=1;length<=7;length++) {
+        for(unsigned i=0;i<t->counts[length];i++) {
+            unsigned bits=code+i, reversed=0;
+            for(unsigned n=0;n<length;n++) {
+                reversed=(reversed<<1)|(bits&1u);
+                bits>>=1;
+            }
+            for(unsigned at=reversed;at<128;at+=1u<<length)
+                t->fast[at]=(length<<9)|t->symbols[base+i];
+        }
+        base+=t->counts[length];
+        code=(code+t->counts[length])<<1;
+    }
+}
+#endif
 
 /* Build fixed Huffman trees */
 static void tinf_build_fixed_trees(struct tinf_tree *lt, struct tinf_tree *dt)
@@ -104,6 +129,10 @@ static void tinf_build_fixed_trees(struct tinf_tree *lt, struct tinf_tree *dt)
 	}
 
 	dt->max_sym = 29;
+#ifdef T3P_TINF_PREFIX
+    tinf_build_fast(lt);
+    tinf_build_fast(dt);
+#endif
 }
 
 /* Given an array of code lengths, build a tree */
@@ -170,6 +199,9 @@ static int tinf_build_tree(struct tinf_tree *t, const unsigned char *lengths,
 		t->symbols[1] = t->max_sym + 1;
 	}
 
+#ifdef T3P_TINF_PREFIX
+    tinf_build_fast(t);
+#endif
 	return TINF_OK;
 }
 
@@ -231,6 +263,25 @@ static int tinf_decode_symbol(struct tinf_data *d, const struct tinf_tree *t)
 	unsigned int tag = d->tag;
 	int bitcount = d->bitcount;
 	const unsigned char *source = d->source;
+#ifdef T3P_TINF_PREFIX
+    /* Peek at the next byte, committing it only if this code consumes it.
+     * Never retain a whole prefetched byte across a stored-block boundary. */
+    unsigned peek=tag;
+    if(bitcount<7 && source!=d->source_end)
+        peek|=(unsigned)*source<<bitcount;
+    unsigned entry=t->fast[peek&127u];
+    unsigned used=entry>>9;
+    if(used && (used<=(unsigned)bitcount || source!=d->source_end)) {
+        if(used>(unsigned)bitcount) {
+            tag|=(unsigned)*source++<<bitcount;
+            bitcount+=8;
+        }
+        d->tag=tag>>used;
+        d->bitcount=bitcount-used;
+        d->source=source;
+        return entry&511u;
+    }
+#endif
 #endif
 
 	/*
@@ -457,7 +508,9 @@ static int tinf_inflate_block_data(struct tinf_data *d, struct tinf_tree *lt,
 		}
 		else {
 			int length, dist, offs;
+#ifndef T3P_TINF_MATCH_COPY
 			int i;
+#endif
 
 			/* Check for end of block */
 			if (sym == 256) {
@@ -494,12 +547,30 @@ static int tinf_inflate_block_data(struct tinf_data *d, struct tinf_tree *lt,
 				return TINF_BUF_ERROR;
 			}
 
-			/* Copy match */
+			/* Forward byte copies preserve overlapping DEFLATE matches. */
+#ifdef T3P_TINF_MATCH_COPY
+			unsigned char *output = d->dest;
+			const unsigned char *match = output - offs;
+			int remaining = length;
+			while (remaining >= 4) {
+				output[0] = match[0];
+				output[1] = match[1];
+				output[2] = match[2];
+				output[3] = match[3];
+				output += 4;
+				match += 4;
+				remaining -= 4;
+			}
+			while (remaining--) {
+				*output++ = *match++;
+			}
+			d->dest = output;
+#else
 			for (i = 0; i < length; ++i) {
 				d->dest[i] = d->dest[i - offs];
 			}
-
 			d->dest += length;
+#endif
 		}
 	}
 }
@@ -549,7 +620,7 @@ static int tinf_inflate_uncompressed_block(struct tinf_data *d)
 /* Inflate a block of data compressed with fixed Huffman trees */
 static int tinf_inflate_fixed_block(struct tinf_data *d)
 {
-	/* Build fixed Huffman trees */
+/* Build fixed Huffman trees */
 	tinf_build_fixed_trees(&d->ltree, &d->dtree);
 
 	/* Decode block using fixed trees */

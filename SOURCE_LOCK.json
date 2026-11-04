@@ -47,8 +47,8 @@
     "revision": "57ffa1f1d5e3dde19011b2127bd26d01689b694b",
     "license": "Zlib",
     "path": "vendor/tinf",
-    "tinflate_c_sha256": "61b977b4b1ddf9161160767ac6475a3e985a4aedbc507e01f05922fdcb893d38",
-    "modifications": "Optional T3P_TINF_LOCAL_BITS symbol decoder optimization, used by native V12 and later"
+    "tinflate_c_sha256": "e5cffc3f53aae2d914db5c50fd6d7cc4a5da246ead16b56a9efa0d15e19c7884",
+    "modifications": "Optional local-bit reader (V12+), forward match-copy unrolling (V26), and 7-bit Huffman prefix table (V27). Original license retained."
   },
   "game_data": {
     "name": "Freedoom 0.13.0, existing KM003C converted E1M1 pack",

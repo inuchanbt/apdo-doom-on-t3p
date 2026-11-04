@@ -9,3 +9,8 @@ Raw DEFLATE decoder only; gzip/zlib wrappers and checksum modules are not used.
 The project wrapper validates its own page table and decoded-page CRC32.
 
 V12 and later enable the local T3P_TINF_LOCAL_BITS decode path.
+
+V26 adds the optional T3P_TINF_MATCH_COPY forward-copy loop.
+V27 adds T3P_TINF_PREFIX with a 7-bit lookup table and retains the original
+decoder for longer codes. V27 leaves the V26 copy option disabled.
+These are local source modifications under the retained zlib license.
