@@ -55,11 +55,17 @@ def flatten(elf):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--doom',action='store_true')
     parser.add_argument('--package-doom',action='store_true')
+    parser.add_argument('--release-app',action='store_true',
+                        help='Link the V58 release candidate without JieLi runtime archives')
     parser.add_argument('--toolchain',type=Path,default=ROOT/'local/tools/jieli/C$/JL/pi32')
     parser.add_argument('--game-data',type=Path)
     parser.add_argument('--revision',type=int,default=2)
     parser.add_argument('--lz4-module-path',type=Path,default=ROOT/'local/host-lz4')
-    args=parser.parse_args();generate()
+    args=parser.parse_args()
+    if args.release_app and (not args.doom or args.revision != 58):
+        parser.error('--release-app requires --doom --revision 58')
+    if not args.release_app:
+        generate()
     weapon_view_y=args.doom and args.revision in (50,51,52,53,54,55,56,57,58)
     touch_move=args.doom and args.revision in (51,52,53,54,55,56,57,58)
     dual_keys=args.doom and args.revision in (52,53,54,55,56,57,58)
@@ -98,6 +104,7 @@ def main():
         assert set(changed_sources)<=allowed_changes,changed_sources
     assert revision>=2
     doom_dir='native-doom-integration' if revision==2 else f'native-doom-v{args.revision}'
+    if args.release_app:doom_dir+='-prebuilt'
     out=ROOT/'artifacts'/(doom_dir if args.doom else f'native-bringup-v{revision}')
     out.mkdir(exist_ok=True)
     toolchain=args.toolchain.resolve();tools=toolchain/'bin'
@@ -154,6 +161,7 @@ def main():
     if dual_keys:names+=['t3p_input.c']
     if sensor_controls:names+=['t3p_tilt.c','t3p_mic.c']
     if haptics:names+=['t3p_haptics.c',weapon_actions]
+    if args.release_app:names+=['runtime_division.c']
     if uac_monitor:names+=['t3p_baro.c',menu_source]
     band_source='../vendor/dmc100-doom/port/render/r_band.c'
     if seamless_view:names+=[band_source]
@@ -295,7 +303,8 @@ def main():
     cmd=[str(tools/'pi32v2-ld.exe'),'-T',str(linker_script),
          '--gc-sections','-Map='+str(out/'native.map'),'-o',str(elf),*objects,str(gameobj)]
     if args.doom:cmd+=[str(ROOT/'artifacts/pi32v2-engine/libt3pdoom.a')]
-    cmd+=['--start-group',str(libs/'libcompiler-rt.a'),str(libs/'libm.a'),str(libs/'libc.a'),'--end-group']
+    if not args.release_app:
+        cmd+=['--start-group',str(libs/'libcompiler-rt.a'),str(libs/'libm.a'),str(libs/'libc.a'),'--end-group']
     result=subprocess.run(cmd,capture_output=True,text=True,encoding='utf-8',errors='replace')
     (out/'link.log').write_text(result.stdout+result.stderr,encoding='utf-8')
     if result.returncode:raise RuntimeError(result.stdout+result.stderr)
@@ -307,6 +316,7 @@ def main():
     report=dict(status='PREPARED; native board execution has NOT been tested',
         purpose='Actual DOOM engine linked to real MMIO backend' if args.doom else 'Standalone LCD/clock/memory bring-up; no DOOM',
         elf_sha256=digest(elf.read_bytes()),payload_sha256=digest(payload),
+        jieli_runtime_archives_linked=not args.release_app,
         app_bytes=len(payload),load_span_bytes=span,layout=layout,
         initialized_hardware=['WDT disable','polling TIMER0 standard24MHz/4096',
                               'DBI divider selector 2; frequency unverified' if revision in (24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49) else 'DBI nominal6MHz clock selector','PC0 reset','stock ST7789V sequence',
@@ -537,6 +547,7 @@ def main():
         assert encoded[:0x5000]==raw[:0x5000]
         assert encoded[bounds[1]:]==raw[bounds[1]:]
         doom_name='T3P_NATIVE_DOOM_E1M1_3.0.3.bin' if revision==2 else f'T3P_NATIVE_DOOM_E1M1_V{args.revision}_3.0.3.bin'
+        if args.release_app:doom_name='T3P_NATIVE_DOOM_E1M1_V58.1_3.0.3.bin'
         firmware=out/(doom_name if args.doom else f'T3P_NATIVE_BRINGUP_V{revision}_3.0.3.bin');firmware.write_bytes(encoded)
         report.update(image_sha256=digest(encoded),image_bytes=len(encoded),
                       image_path=firmware.relative_to(ROOT).as_posix(),

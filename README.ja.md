@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+[ビルド済みアプリとオフライン梱包](docs/PREBUILT.ja.md)
+
 ATORCH T3P本体でFreedoomのE1M1を動かす実験的なネイティブ移植。**V58** は内蔵240×240 LCDにFreedoomのバナーを表示し、そのままE1M1に入る。本体のボタン、タッチ、傾き、マイクで遊べる。
 
 ## V58で遊ぶ

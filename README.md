@@ -2,6 +2,8 @@
 
 [日本語](README.ja.md)
 
+[Prebuilt app and offline packaging](docs/PREBUILT.md)
+
 This experimental native port runs Freedoom E1M1 on the ATORCH T3P's 240×240 LCD. **V58** boots from a centered Freedoom banner straight into E1M1. The game runs on the T3P with its built-in buttons, touchscreen and sensors.
 
 ## Play V58

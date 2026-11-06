@@ -60,14 +60,13 @@ not grant this project a blanket redistribution license. SDK headers carrying
 "not free / All right reserved" were consulted for structures and hardware
 facts; SDK source was not copied into the project's new native source files.
 
-The offline link probe uses the official toolchain's runtime archives as a
-local experiment. Runtime redistribution terms and complete corresponding
-source requirements must be resolved before any binary release. Its ELF is
-not included in a public release and is not suitable for flashing.
-
-`SOURCE_LOCK.json`, build manifests and the stock inventory record exact
-inputs. A future release requires a separate explicit file inventory and
-licensing review; ignored local research data is not a release asset.
+The historical link probe and V58 build use the JieLi runtime archives as
+local build inputs. The V58.1 prebuilt app uses `native/runtime_division.c`
+and omits all JieLi runtime archives from the link. The prebuilt kit contains
+only the DOOM app, offline packing tools, documentation and notices. The
+packer takes the original T3P 3.0.3 supplied locally by the user. The
+corresponding source bundle includes the patched converter, pinned
+doomgeneric source and Freedoom inputs. See [Prebuilt app](docs/PREBUILT.md).
 
 The new MIT auxiliary `recovery/cm_rom_probe` uses the pinned Pico SDK,
 TinyUSB and Pico-PIO-USB dependencies. Its native CDC descriptor source is
