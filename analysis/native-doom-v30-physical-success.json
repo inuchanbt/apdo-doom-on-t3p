@@ -1,0 +1,31 @@
+{
+  "revision": 30,
+  "status": "USER-REPORTED HARDWARE SUCCESS: firing and continuous gameplay",
+  "image_sha256": "a2b261b5585044f72fa0450aadf75382ced653631ebc151122cb1174157be003",
+  "verification_method": "User flashed V30 and supplied three device photos plus explicit confirmation that firing works and gameplay keeps running.",
+  "confirmed": {
+    "game_screen_rendered": true,
+    "left_button_fires": true,
+    "continuous_gameplay_reported": true
+  },
+  "duration_seconds": null,
+  "limitations": [
+    "Elapsed runtime was not measured.",
+    "This confirms the reported play session, not a long-duration stress test or other inputs/sensors."
+  ],
+  "photos": [
+    {
+      "name": "1-photo.jpg",
+      "sha256": "23302ab53f2420e357dbfb5c148eabda06859f8a15fa04b69bec5f312e53abeb"
+    },
+    {
+      "name": "2-photo.jpg",
+      "sha256": "c58edd2a77e1047a4e10e18368af12b7f134f8aa8145524eac7df5bd10274b4e"
+    },
+    {
+      "name": "3-photo.jpg",
+      "sha256": "6481035e7708dd3b0b77d5f293d3ac626c06734ba10f456705a270ad9f881df2"
+    }
+  ],
+  "raw_photos_in_repository": false
+}

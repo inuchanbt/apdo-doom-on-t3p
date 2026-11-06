@@ -1,0 +1,59 @@
+{
+  "status": "OFFLINE COMPRESSION SIZE CHECK ONLY; no native LZ4 decoder or speed result",
+  "lz4_package_version": "4.4.4",
+  "lz4_settings": "2KiB independent raw LZ4 blocks; minimum of HC levels 9 and 12; raw when smaller",
+  "raw_bytes": 2802000,
+  "raw_sha256": "6b25a4f1adb6f1f1f5f42226c272b93ccff4f356ac8d7034cf83712b2da70c08",
+  "pages": 1369,
+  "current_pack_bytes": 1249137,
+  "all_lz4_pack_bytes": 1835566,
+  "all_lz4_growth_bytes": 586429,
+  "current_flash_headroom_bytes": 544,
+  "no_growth_deflate_to_lz4_pages": 1,
+  "no_growth_bytes_saved": 1,
+  "raw_to_lz4_pages": 26,
+  "raw_to_lz4_bytes_saved": 11256,
+  "sample_hot_pages": [
+    {
+      "page": 1333,
+      "page_hex": "535",
+      "current_bytes": 1136,
+      "current_raw": false,
+      "lz4_bytes": 1646,
+      "lz4_compressed": true,
+      "extra_bytes": 510
+    },
+    {
+      "page": 1335,
+      "page_hex": "537",
+      "current_bytes": 1073,
+      "current_raw": false,
+      "lz4_bytes": 1586,
+      "lz4_compressed": true,
+      "extra_bytes": 513
+    },
+    {
+      "page": 1336,
+      "page_hex": "538",
+      "current_bytes": 1103,
+      "current_raw": false,
+      "lz4_bytes": 1587,
+      "lz4_compressed": true,
+      "extra_bytes": 484
+    },
+    {
+      "page": 1348,
+      "page_hex": "544",
+      "current_bytes": 1011,
+      "current_raw": false,
+      "lz4_bytes": 1645,
+      "lz4_compressed": true,
+      "extra_bytes": 634
+    }
+  ],
+  "limitations": [
+    "Decoder machine code and any format metadata not included.",
+    "LZ4 on current raw pages saves Flash but replaces direct reads with decoding; device runtime tradeoff is unmeasured.",
+    "A hybrid pack needs native decoder, format validation and hardware tests."
+  ]
+}

@@ -68,6 +68,101 @@ static void input_tests(void)
 }
 
 struct mock { unsigned address,reg,count; int returned; uint8_t bytes[6]; };
+static void board_button_tests(void)
+{
+    struct t3p_buttons s = {0};
+    const unsigned left = T3P_BUTTON_LEFT, right = T3P_BUTTON_RIGHT, both = T3P_BUTTON_BOTH;
+
+    t3p_buttons_sample(&s, left, 10);
+    t3p_buttons_sample(&s, 0, 18);
+    t3p_buttons_sample(&s, 0, 38);
+    assert(t3p_buttons_take(&s, 0) == 0); /* bounce */
+    t3p_buttons_sample(&s, left, 100);
+    t3p_buttons_sample(&s, left, 120);
+    assert(t3p_buttons_take(&s, 0) == 0); /* wait briefly for the other button */
+    t3p_buttons_sample(&s, 0, 135);
+    t3p_buttons_sample(&s, 0, 155);
+    assert(t3p_buttons_take(&s, 0) == T3P_FIRE); /* tap during rendering */
+    assert(t3p_buttons_take(&s, 0) == 0);
+
+    t3p_buttons_sample(&s, left, 200);
+    t3p_buttons_sample(&s, left, 249);
+    assert(t3p_buttons_take(&s, 0) == 0);
+    t3p_buttons_sample(&s, left, 250);
+    assert(t3p_buttons_take(&s, 0) == T3P_FIRE);
+    assert(t3p_buttons_take(&s, 0) == T3P_FIRE); /* held to repeat */
+    t3p_buttons_sample(&s, 0, 270);
+    t3p_buttons_sample(&s, 0, 290);
+    assert(t3p_buttons_take(&s, 0) == 0);
+
+    t3p_buttons_sample(&s, right, 300);
+    t3p_buttons_sample(&s, right, 350);
+    assert(t3p_buttons_take(&s, 0) == T3P_USE);
+    assert(t3p_buttons_take(&s, 0) == 0); /* held right only uses once */
+    t3p_buttons_sample(&s, 0, 360);
+    t3p_buttons_sample(&s, 0, 380);
+    t3p_buttons_sample(&s, right, 400);
+    t3p_buttons_sample(&s, right, 420);
+    t3p_buttons_sample(&s, 0, 431);
+    t3p_buttons_sample(&s, 0, 451);
+    assert(t3p_buttons_take(&s, 0) == T3P_USE);
+    t3p_buttons_sample(&s, right, 460);
+    t3p_buttons_sample(&s, right, 480);
+    t3p_buttons_sample(&s, 0, 492);
+    t3p_buttons_sample(&s, 0, 512);
+    assert(t3p_buttons_take(&s, 0) == 0); /* force release between queued uses */
+    assert(t3p_buttons_take(&s, 0) == T3P_USE);
+    assert(t3p_buttons_take(&s, 0) == 0);
+
+    t3p_buttons_sample(&s, left, 600);
+    t3p_buttons_sample(&s, left, 620);
+    t3p_buttons_sample(&s, both, 637);
+    t3p_buttons_sample(&s, both, 657);
+    t3p_buttons_sample(&s, both, 1356);
+    assert(t3p_buttons_take(&s, 0) == 0);
+    t3p_buttons_sample(&s, both, 1357);
+    assert(t3p_buttons_take(&s, 0) == T3P_ESCAPE);
+    assert(t3p_buttons_take(&s, 1) == 0);
+    t3p_buttons_sample(&s, right, 1400);
+    t3p_buttons_sample(&s, right, 1420);
+    assert(t3p_buttons_take(&s, 1) == 0); /* partial release cannot close menu */
+    t3p_buttons_sample(&s, both, 1430);
+    t3p_buttons_sample(&s, both, 2150);
+    assert(t3p_buttons_take(&s, 1) == 0); /* require full release to rearm */
+    t3p_buttons_sample(&s, 0, 2160);
+    t3p_buttons_sample(&s, 0, 2180);
+
+    t3p_buttons_sample(&s, left, 2200);
+    t3p_buttons_sample(&s, left, 2250);
+    assert(t3p_buttons_take(&s, 1) == T3P_ENTER);
+    assert(t3p_buttons_take(&s, 1) == 0);
+    t3p_buttons_sample(&s, 0, 2260);
+    t3p_buttons_sample(&s, 0, 2280);
+    t3p_buttons_sample(&s, right, 2300);
+    t3p_buttons_sample(&s, right, 2350);
+    assert(t3p_buttons_take(&s, 1) == T3P_ESCAPE);
+    assert(t3p_buttons_take(&s, 0) == 0); /* closing the menu cannot also use */
+
+    s = (struct t3p_buttons){0};
+    t3p_buttons_sample(&s, right, 1);
+    t3p_buttons_sample(&s, right, 21);
+    t3p_buttons_sample(&s, both, 30);
+    t3p_buttons_sample(&s, both, 50);
+    t3p_buttons_sample(&s, left, 200);
+    t3p_buttons_sample(&s, left, 220);
+    t3p_buttons_sample(&s, left, 800);
+    assert(t3p_buttons_take(&s, 0) == 0); /* aborted chord cannot fire or use */
+
+    s = (struct t3p_buttons){0};
+    t3p_buttons_sample(&s, both, UINT32_MAX - 30);
+    t3p_buttons_sample(&s, both, UINT32_MAX - 10);
+    t3p_buttons_sample(&s, both, 689);
+    t3p_buttons_sample(&s, 0, 700);
+    t3p_buttons_sample(&s, 0, 720);
+    assert(t3p_buttons_take(&s, 0) == T3P_ESCAPE); /* wraps and survives release */
+    assert(t3p_buttons_take(&s, 1) == 0);
+}
+
 static int mock_read(void *ctx,uint8_t address,uint8_t reg,uint8_t *data,unsigned count)
 {
     struct mock *m=ctx;
@@ -78,7 +173,7 @@ static int mock_read(void *ctx,uint8_t address,uint8_t reg,uint8_t *data,unsigne
 static void sensor_tests(void)
 {
     struct mock m={T3P_SC7A20,0xa8,6,6,{0,0x80,0xf0,0x7f,0xf0,0xff}};
-    struct t3p_sensor_bus bus={mock_read,&m};
+    struct t3p_sensor_bus bus={.read=mock_read,.ctx=&m};
     struct t3p_accel_raw accel;
     assert(t3p_accel_read(&bus,&accel)==0);
     assert(accel.x==-2048 && accel.y==2047 && accel.z==-1);
@@ -103,7 +198,7 @@ static void sensor_tests(void)
 }
 int main(void)
 {
-    input_tests(); sensor_tests();
-    puts("PASS: input transitions, wraparound, touch zones, sensor decoding and errors (mock data only)");
+    input_tests(); board_button_tests(); sensor_tests();
+    puts("PASS: button taps, holds, chords, menu, wraparound, touch zones and sensor decoding (mock data only)");
     return 0;
 }

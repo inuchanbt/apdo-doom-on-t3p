@@ -1,0 +1,302 @@
+{
+  "status": "USER-REPORTED HARDWARE RESULTS; one fixed 30-frame run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "single_tic_per_frame": true,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "units": "ms; display hexadecimal; firmware means truncated to integer milliseconds",
+  "raw_photos_in_repository": false,
+  "transcription": "Corrected user photographs identified by revision 0x25/0x26; magnified for manual transcription. Earlier mistakenly submitted photographs are excluded.",
+  "v37": {
+    "firmware_sha256": "8490a47a3ca7050aca0d3bfec73dab422b6d8e298d8f365589e6e630f28073ab",
+    "photo_sha256": "70aace3ac8259e0984a113456359550f4e11fdef21d857542f1d2c2148734b8b",
+    "photo_dimensions": [
+      1276,
+      1702
+    ],
+    "profile_rows_hex": [
+      "00000025",
+      "0000001E",
+      "0000D00E",
+      "0000029C",
+      "0000027F",
+      "000002DF",
+      "000001AC",
+      "00000190",
+      "000001E2",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "05440167",
+      "0001003C",
+      "05250156",
+      "0001003C",
+      "05380149",
+      "0001003C",
+      "05300140",
+      "0001003C",
+      "05460132",
+      "0001003C",
+      "0537012E",
+      "0001003C",
+      "0201011B",
+      "0001003C",
+      "053B0118",
+      "0001003C"
+    ],
+    "top_pages": [
+      {
+        "rank": 1,
+        "page_hex": "0x544",
+        "codec": "DEFLATE",
+        "total_decode_ms": 359,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 11.967,
+        "stored_bytes": 1011,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 2,
+        "page_hex": "0x525",
+        "codec": "DEFLATE",
+        "total_decode_ms": 342,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 11.4,
+        "stored_bytes": 1068,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 3,
+        "page_hex": "0x538",
+        "codec": "DEFLATE",
+        "total_decode_ms": 329,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.967,
+        "stored_bytes": 1103,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 4,
+        "page_hex": "0x530",
+        "codec": "DEFLATE",
+        "total_decode_ms": 320,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.667,
+        "stored_bytes": 1101,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 5,
+        "page_hex": "0x546",
+        "codec": "DEFLATE",
+        "total_decode_ms": 306,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.2,
+        "stored_bytes": 966,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 6,
+        "page_hex": "0x537",
+        "codec": "DEFLATE",
+        "total_decode_ms": 302,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.067,
+        "stored_bytes": 1073,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 7,
+        "page_hex": "0x201",
+        "codec": "DEFLATE",
+        "total_decode_ms": 283,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.433,
+        "stored_bytes": 461,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 8,
+        "page_hex": "0x53B",
+        "codec": "DEFLATE",
+        "total_decode_ms": 280,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.333,
+        "stored_bytes": 955,
+        "raw_bytes": 2048
+      }
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "frame": {
+      "mean": 668,
+      "minimum": 639,
+      "maximum": 735
+    },
+    "decode": {
+      "mean": 428,
+      "minimum": 400,
+      "maximum": 482
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "top_eight_total_ms": 2521,
+    "approx_fps_from_mean": 1.497
+  },
+  "v38": {
+    "firmware_sha256": "6e2e08552ea21450e6a204b6317dbf1d731c549bb5684bd6b63fd975faaa0666",
+    "photo_sha256": "b4d16dcc0f37bfad1a351a8afc798d9da30ca10498cc55f2a24c765c0ee7155b",
+    "photo_dimensions": [
+      1276,
+      1702
+    ],
+    "profile_rows_hex": [
+      "00000026",
+      "0000001E",
+      "0000D00E",
+      "000002AE",
+      "00000288",
+      "000002EF",
+      "000001BC",
+      "000001A7",
+      "000001F4",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "022801C5",
+      "00010078",
+      "055701AA",
+      "0001003C",
+      "02270160",
+      "0001005A",
+      "05300141",
+      "0001003C",
+      "05460137",
+      "0001003C",
+      "052F0127",
+      "0001003C",
+      "053F0121",
+      "0001003A",
+      "053B0111",
+      "0001003C"
+    ],
+    "top_pages": [
+      {
+        "rank": 1,
+        "page_hex": "0x228",
+        "codec": "DEFLATE",
+        "total_decode_ms": 453,
+        "decode_calls": 120,
+        "ms_per_measured_frame": 15.1,
+        "stored_bytes": 872,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 2,
+        "page_hex": "0x557",
+        "codec": "DEFLATE",
+        "total_decode_ms": 426,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 14.2,
+        "stored_bytes": 1035,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 3,
+        "page_hex": "0x227",
+        "codec": "DEFLATE",
+        "total_decode_ms": 352,
+        "decode_calls": 90,
+        "ms_per_measured_frame": 11.733,
+        "stored_bytes": 874,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 4,
+        "page_hex": "0x530",
+        "codec": "DEFLATE",
+        "total_decode_ms": 321,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.7,
+        "stored_bytes": 1101,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 5,
+        "page_hex": "0x546",
+        "codec": "DEFLATE",
+        "total_decode_ms": 311,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.367,
+        "stored_bytes": 966,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 6,
+        "page_hex": "0x52F",
+        "codec": "DEFLATE",
+        "total_decode_ms": 295,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.833,
+        "stored_bytes": 1027,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 7,
+        "page_hex": "0x53F",
+        "codec": "DEFLATE",
+        "total_decode_ms": 289,
+        "decode_calls": 58,
+        "ms_per_measured_frame": 9.633,
+        "stored_bytes": 971,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 8,
+        "page_hex": "0x53B",
+        "codec": "DEFLATE",
+        "total_decode_ms": 273,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.1,
+        "stored_bytes": 955,
+        "raw_bytes": 2048
+      }
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "frame": {
+      "mean": 686,
+      "minimum": 648,
+      "maximum": 751
+    },
+    "decode": {
+      "mean": 444,
+      "minimum": 423,
+      "maximum": 500
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "top_eight_total_ms": 2720,
+    "approx_fps_from_mean": 1.458
+  },
+  "interpretation": [
+    "Both variants completed 30 measured frames at tic 40 with matching FNV-1a fingerprint C269CBCE; this is not a cryptographic proof or general gameplay stability test.",
+    "V38 mean frame time is 18 ms (2.69 percent) longer in this pair. No demonstrated hybrid performance advantage; one run each does not establish a regression distribution.",
+    "Decode accounts for approximately 64 percent of total frame time in both variants. Presentation stays 83 ms.",
+    "The eight slowest compressed pages together account for about 84/91 ms per frame in V37/V38. Most decode cost lies outside the top eight.",
+    "V37 top pages 0x544, 0x538 and 0x537 are LZ4 in V38 and leave its top eight. Other DEFLATE pages become the leaders. This does not by itself prove cache thrashing or its cause.",
+    "Prefer the conventional pack as the next comparison baseline and investigate changes affecting all DEFLATE pages before committing to more hybrid substitutions."
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "status": "USER-REPORTED HARDWARE RESULTS; one controlled 30-frame run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "single_tic_per_frame": true,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "units": "ms; display values are hexadecimal; mean values truncated by firmware",
+  "raw_photos_in_repository": false,
+  "transcription_limit": "Rows 1-25 transcribed after magnification. Lower byte/call totals (26-30) are not used and are left null; V35 source is only 283x377 pixels.",
+  "v35": {
+    "firmware_sha256": "7508159e0b540a367cd762b51a3d55b580658fbd5a3d991a07a1178350daa2a0",
+    "photo_sha256": "deb074db0ca3ab7b35a4d315890b937bfbd342e6cb855142a063740bbb380948",
+    "photo_dimensions": [
+      283,
+      377
+    ],
+    "profile_rows_hex": [
+      "00000023",
+      "0000001E",
+      "0000D00E",
+      "000002A4",
+      "00000287",
+      "000002E8",
+      "000001AC",
+      "0000018E",
+      "000001E7",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "00000011",
+      "00000002",
+      "00000006",
+      "00000000",
+      "000001E9",
+      "00000015",
+      "0000023A",
+      "00000054",
+      "00000000",
+      "000001AC",
+      "00000000",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "frame": {
+      "mean": 676,
+      "minimum": 647,
+      "maximum": 744
+    },
+    "decode": {
+      "mean": 428,
+      "minimum": 398,
+      "maximum": 487
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "breakdown": {
+      "compressed_fetch_mean_ms": 17,
+      "raw_flash_copy_mean_ms": 2,
+      "cached_page_copy_mean_ms": 6,
+      "first_use_crc_mean_ms": 0,
+      "asset_read_inclusive_mean_ms": 489,
+      "simulation_inclusive_mean_ms": 21,
+      "render_inclusive_mean_ms": 570,
+      "present_call_mean_ms": 84,
+      "frame_remainder_mean_ms": 0,
+      "deflate_mean_ms": 428,
+      "lz4_mean_ms": 0
+    }
+  },
+  "v36": {
+    "firmware_sha256": "3e9cf723d42379411cc7b42d65d1a0491b3e6cd25fae9028cb62bfb022a71433",
+    "photo_sha256": "03598382da3e1e74f668f3596ede79781c2921f4e40c863012f1a700f823f12e",
+    "photo_dimensions": [
+      1278,
+      1703
+    ],
+    "profile_rows_hex": [
+      "00000024",
+      "0000001E",
+      "0000D00E",
+      "000002B5",
+      "0000029F",
+      "000002F6",
+      "000001BC",
+      "000001A5",
+      "000001F4",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "00000014",
+      "00000002",
+      "00000006",
+      "00000000",
+      "000001F0",
+      "00000015",
+      "0000024B",
+      "00000054",
+      "00000000",
+      "000001B0",
+      "0000000B",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "frame": {
+      "mean": 693,
+      "minimum": 671,
+      "maximum": 758
+    },
+    "decode": {
+      "mean": 444,
+      "minimum": 421,
+      "maximum": 500
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "breakdown": {
+      "compressed_fetch_mean_ms": 20,
+      "raw_flash_copy_mean_ms": 2,
+      "cached_page_copy_mean_ms": 6,
+      "first_use_crc_mean_ms": 0,
+      "asset_read_inclusive_mean_ms": 496,
+      "simulation_inclusive_mean_ms": 21,
+      "render_inclusive_mean_ms": 587,
+      "present_call_mean_ms": 84,
+      "frame_remainder_mean_ms": 0,
+      "deflate_mean_ms": 432,
+      "lz4_mean_ms": 11
+    }
+  },
+  "matching_final_game_tic": true,
+  "matching_indexed_frame_sequence_hash": true,
+  "hybrid_mean_frame_time_increase_percent": 2.515,
+  "interpretation": "The instrumented hybrid run was slower: 693 vs 676 ms mean frame time. Decoding was 444 vs 428 ms (about 64% vs 63% of the total); raw Flash copies were 2 ms, compressed fetch 20 vs 17 ms, cached copies 6 ms, first-use CRC 0 ms and presentation about 83-84 ms. These readings do not identify direct raw copies or CRC as the main cost in this warm start-room workload.",
+  "limitations": [
+    "One run per variant; no statistical repeatability claim.",
+    "Added per-read timers and changed code placement affect execution; these times cannot be directly compared with V33/V34 to quantify probe overhead.",
+    "V33/V34 showed a modest hybrid advantage, but it did not repeat under the added instrumentation; a general hybrid speedup is unproven.",
+    "Inclusive asset, simulation and render times overlap with decode/fetch/copy buckets; do not sum all rows.",
+    "Millisecond rounding on many short copy operations may accumulate error; zero CRC means no measured whole-millisecond contribution, not disabled verification.",
+    "FNV-1a matching is evidence of matching output, not cryptographic proof.",
+    "Measured no-input one-tic-per-frame start room; not a guarantee for normal play, movement or firing.",
+    "Rows 26-30 are untranscribed and no conclusions depend on their values."
+  ],
+  "decision": "Retain V30 as the gameplay baseline. Next prioritize aggregate per-page decode time/frequency to select codec changes or cache residency based on measured hot pages, without sacrificing raw donor pages blindly."
+}

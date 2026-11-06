@@ -1,0 +1,88 @@
+{
+  "status": "USER-REPORTED fixed-tic hardware results; one run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "single_tic_per_frame": true,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "procedure": "docs/BENCHMARK_V47_V48.ja.md",
+  "raw_photos_in_repository": false,
+  "transcription": "Revision, count, completion, mean frame time, zero decode rows, final tic and sequence hash read from the original photographs and enlarged crops. This record deliberately omits min/max and present-call timings.",
+  "measurement_conditions": {
+    "checksum_inside_timed_interval": true,
+    "warmup_presentation_drained_before_measurement": true,
+    "final_presentation_drained_inside_measurement": true,
+    "intermediate_diagnostic_rectangles": false,
+    "present_call_rows_are_not_full_transfer_wall_time": true
+  },
+  "v47": {
+    "firmware_sha256": "80ecad00153c491f16c82048fe2d5d683f18fd936f3e7d791b2ab01d975c4ca2",
+    "photo_sha256": "124c4b1743ba3fa6591f7880c0a7a05f12f197f1ecf7ee5990bb9a14f4ad2f37",
+    "profile_rows_hex_selected": {
+      "1": "0000002F",
+      "2": "0000001E",
+      "3": "0000D00E",
+      "4": "000000D7",
+      "7": "00000000",
+      "8": "00000000",
+      "9": "00000000",
+      "13": "00000028",
+      "14": "EBC8D404"
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "EBC8D404",
+    "frame": {
+      "mean": 215
+    },
+    "decode": {
+      "mean": 0,
+      "minimum": 0,
+      "maximum": 0
+    },
+    "reciprocal_mean_frame_rate_hz": 4.651163,
+    "normal_gameplay_or_long_term_stability_verified": false
+  },
+  "v48": {
+    "firmware_sha256": "0b90fc17358554b7173e1f78549776ab0a3e3ebc9d64659a9773e71f9bead391",
+    "photo_sha256": "2c5e813120c1bb9320174d4b199f55af950fe6efa67b79832bd601b394bcf6ab",
+    "profile_rows_hex_selected": {
+      "1": "00000030",
+      "2": "0000001E",
+      "3": "0000D00E",
+      "4": "00000091",
+      "7": "00000000",
+      "8": "00000000",
+      "9": "00000000",
+      "13": "00000028",
+      "14": "EBC8D404"
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "EBC8D404",
+    "frame": {
+      "mean": 145
+    },
+    "decode": {
+      "mean": 0,
+      "minimum": 0,
+      "maximum": 0
+    },
+    "reciprocal_mean_frame_rate_hz": 6.896552,
+    "normal_gameplay_or_long_term_stability_verified": false
+  },
+  "comparison": {
+    "mean_frame_ms_reduction": 70,
+    "mean_frame_time_reduction_percent": 32.55814,
+    "reciprocal_frame_rate_ratio": 1.482759
+  },
+  "interpretation": [
+    "Both variants completed 30 measured frames at tic 40 with the expected EBC8D404 image sequence. The D00E stop is intentional.",
+    "V48 reduced mean frame time from 215 to 145 ms: 32.56% shorter, about 1.48 times the reciprocal mean rate.",
+    "Both versions share the raw pack, two frame buffers, palette snapshots, 16-column conversion, engine archive and clock settings. The bridge selects serial or overlapped presentation; all 12 other native objects are byte-identical.",
+    "This result supports cooperative rendering/presentation overlap for the fixed start-room workload; it does not isolate CPU rendering, preparation, memory copying or transfer time.",
+    "The reciprocal mean rates of 4.65 and 6.90 frames/s describe this fixed-tic benchmark, not measured normal-play FPS or input-to-display latency.",
+    "V46 timing used different diagnostic/hash placement and display batching. Do not interpret V46 to V47 as an isolated regression or V46 to V48 as an isolated overlap gain.",
+    "The 16-column path booted and completed this hardware workload. One run per variant does not establish normal-play controls, movement-scene performance or long-term stability.",
+    "Retain the V48 overlap design for subsequent development; keep V47 as its controlled benchmark reference."
+  ]
+}

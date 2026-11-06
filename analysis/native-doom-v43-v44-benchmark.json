@@ -1,0 +1,108 @@
+{
+  "status": "USER-REPORTED fixed-tic hardware results; one run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "single_tic_per_frame": true,
+  "photo_dimensions": [
+    1276,
+    1702
+  ],
+  "raw_photos_in_repository": false,
+  "transcription": "All 14 rows manually transcribed from the supplied original photographs and enlarged timing/fingerprint crops. Revision 0x2B/0x2C matches the user caption V43/V44.",
+  "procedure": "docs/BENCHMARK_V43_V44.ja.md",
+  "v43": {
+    "firmware_sha256": "9d4b65c7777cf24d4f298033e419b06a3d4be52d6c7c9f3c02d2dcf54d735b43",
+    "photo_sha256": "b345c616450085d1380c843d15c1f6f98047afcfd1249cb968b5384571b5f847",
+    "profile_rows_hex": [
+      "0000002B",
+      "0000001E",
+      "0000D00E",
+      "0000029A",
+      "0000027F",
+      "000002DD",
+      "000001AE",
+      "0000018F",
+      "000001EA",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE"
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "frame": {
+      "mean": 666,
+      "minimum": 639,
+      "maximum": 733
+    },
+    "decode": {
+      "mean": 430,
+      "minimum": 399,
+      "maximum": 490
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "reciprocal_mean_frame_rate_hz": 1.501502
+  },
+  "v44": {
+    "firmware_sha256": "39e03c6b14bd848281b3d1b530fb3670fdb20d27eed259dfe323838b4e439c8f",
+    "photo_sha256": "c6f30ee91a7e9363157a3f5ce8b20d94ac2f366bf21f6c57304bfc76fb456382",
+    "profile_rows_hex": [
+      "0000002C",
+      "0000001E",
+      "0000D00E",
+      "00000272",
+      "00000259",
+      "00000282",
+      "00000183",
+      "00000169",
+      "000001CD",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE"
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "frame": {
+      "mean": 626,
+      "minimum": 601,
+      "maximum": 642
+    },
+    "decode": {
+      "mean": 387,
+      "minimum": 361,
+      "maximum": 461
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "reciprocal_mean_frame_rate_hz": 1.597444
+  },
+  "comparison": {
+    "frame_mean_ms_reduction": 40,
+    "frame_mean_time_reduction_percent": 6.006006,
+    "decode_mean_ms_reduction": 43,
+    "decode_mean_time_reduction_percent": 10.0,
+    "presentation_mean_ms_change": 0,
+    "reciprocal_frame_rate_increase_percent": 6.389776
+  },
+  "interpretation": [
+    "Both images completed 30 measured frames at tic 40 with fingerprint C269CBCE; this controlled frame sequence matches.",
+    "The literal-run candidate reduced mean frame time 666 to 626 ms (6.01%) and mean decode time 430 to 387 ms (10.0%) in these runs. Presentation stayed 83 ms.",
+    "The measured gain supports retaining V44 literal runs. Changes in binary placement may still contribute; this single paired run does not isolate every cycle or establish repeatability.",
+    "The reciprocals of mean frame time are about 1.50 and 1.60 frames/s in this fixed-tic workload, not normal-play average FPS. The gain is useful but not a playable-rate breakthrough.",
+    "V41/V42 used different internal probes and must not be used as speed baselines for this pair.",
+    "Normal controls, movement scenes and long-term stability remain untested on V43/V44. V30 remains the confirmed continuous-play baseline."
+  ]
+}

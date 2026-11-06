@@ -32,6 +32,10 @@ uint32_t t3p_bsp_millis(struct t3p_bsp *b)
     b->fraction+=elapsed*64u;
     b->milliseconds+=b->fraction/375u;
     b->fraction%=375u;
+#ifdef T3P_HAPTICS
+    if (b->haptics.pulse_ms && b->milliseconds - b->haptics.started_ms >= b->haptics.pulse_ms)
+        t3p_haptics_stop(b);
+#endif
     return b->milliseconds;
 }
 int t3p_bsp_delay(struct t3p_bsp *b,uint32_t ms)
@@ -82,6 +86,21 @@ int t3p_bsp_command(struct t3p_bsp *b,uint8_t cmd,const uint8_t *data,uint32_t s
 #ifdef T3P_DBI_ASYNC
 static uint8_t dma_pending;
 static uint32_t dma_begin;
+
+#ifdef T3P_FRAME_PRESENTER
+int t3p_bsp_dma_poll(struct t3p_bsp *b)
+{
+    if(!b || !b->ready || b->failed)return -2;
+    if(!dma_pending)return 1;
+    if(rd(b,PND)&2u) {
+        wr(b,PCLR,2);dma_pending=0;b->operations++;
+        return 1;
+    }
+    if(t3p_bsp_millis(b)-dma_begin<=40u)return 0;
+    b->failed=1;wr(b,DBI+0x28,0);wr(b,DBI+0x24,0);
+    return -2;
+}
+#endif
 
 int t3p_bsp_dma_wait(struct t3p_bsp *b)
 {
@@ -155,7 +174,12 @@ int t3p_bsp_rectangle(void *context,uint16_t xs,uint16_t xe,uint16_t ys,uint16_t
     struct t3p_bsp *b=context;
     if(!b || !b->ready || b->failed)return -2;
     if(xs>xe || xe>=240 || ys>ye || ye>=240 || !pixels ||
-       (uintptr_t)pixels%2 || count!=(uint32_t)(xe-xs+1)*(ye-ys+1) || count>1920)return -1;
+       (uintptr_t)pixels%2 || count!=(uint32_t)(xe-xs+1)*(ye-ys+1) ||
+#ifdef T3P_FRAME_PRESENTER
+       count>3840u)return -1;
+#else
+       count>1920u)return -1;
+#endif
 #ifdef T3P_DBI_ASYNC
     if(t3p_bsp_dma_wait(b))return -2;
 #endif
@@ -165,7 +189,9 @@ int t3p_bsp_rectangle(void *context,uint16_t xs,uint16_t xe,uint16_t ys,uint16_t
     if(t3p_bsp_command(b,0x2b,area,4))return -2;
 #ifdef T3P_DBI_DMA
     uintptr_t address=(uintptr_t)pixels;
-#ifdef T3P_DBI_ASYNC
+#ifdef T3P_FRAME_PRESENTER
+    const unsigned dma_width=16;
+#elif defined(T3P_DBI_ASYNC)
     const unsigned dma_width=4;
 #else
     const unsigned dma_width=8;
@@ -200,6 +226,9 @@ int t3p_bsp_init(struct t3p_bsp *b,const struct t3p_bsp_io *io)
     if(!b || !io || !io->read32 || !io->write32 || !io->write8)return -1;
     b->io=*io;b->milliseconds=b->fraction=b->operations=0;
     b->previous_tick=0;b->ready=b->failed=0;
+#ifdef T3P_HAPTICS
+    b->haptics = (struct t3p_haptics){0};
+#endif
     /* WDT disable sequence from SDK wdt_disable and stock WDT register use. */
     io->write8(io->context,0xf2c818u,0x40);
     io->write8(io->context,0xf2c418u,0xef);

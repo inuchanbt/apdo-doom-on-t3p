@@ -303,7 +303,7 @@ void R_SetMaskClip (drawseg_t* ds)
 // R_DrawVisSprite
 //  mfloorclip and mceilingclip should also be set.
 //
-static void R_DrawVisSprite (vissprite_t* vis)
+static void R_DrawVisSprite (vissprite_t* vis, fixed_t ystep)
 {
     int			texturecolumn;
     fixed_t		frac;
@@ -324,7 +324,7 @@ static void R_DrawVisSprite (vissprite_t* vis)
 	}
     }
 	
-    dc_iscale = abs(vis->xiscale)>>detailshift;
+    dc_iscale = ystep;
     dc_texturemid = vis->gzt - viewz;
     frac = vis->startfrac;
     spryscale = vis->scale;
@@ -595,6 +595,7 @@ static int R_StripSprites (void)
 static void R_DrawPSprite (pspdef_t* psp)
 {
     fixed_t		tx;
+    fixed_t		ystep;
     int			x1;
     int			x2;
     int			xl;
@@ -648,7 +649,15 @@ static void R_DrawPSprite (pspdef_t* psp)
     vis->gzt = (BASEYCENTER<<FRACBITS)+FRACUNIT/2-(psp->sy-spritetopoffset) + viewz;
     vis->x1 = xl - r_s0;
     vis->x2 = xh - r_s0;
+#ifdef T3P_WEAPON_VIEW_Y
+    // The square viewport narrows X but still uses all 200 logical rows.
+    // Keep the weapon and muzzle flash on the original Y scale.
+    vis->scale = FRACUNIT;
+    ystep = FRACUNIT;
+#else
     vis->scale = pspritescale<<detailshift;
+    ystep = pspriteiscale>>detailshift;
+#endif
     
     if (flip)
     {
@@ -688,7 +697,7 @@ static void R_DrawPSprite (pspdef_t* psp)
 	vis->colormap = (R_ScaleLight (psplight, MAXLIGHTSCALE-1) - colormaps) >> 8;
     }
 	
-    R_DrawVisSprite (vis);
+    R_DrawVisSprite (vis, ystep);
     RSTAT(pspcols, vis->x2 - vis->x1 + 1);
 }
 
@@ -862,7 +871,7 @@ static void R_DrawSprite (vissprite_t* spr)
 		
     mfloorclip = clipbot;
     mceilingclip = cliptop;
-    R_DrawVisSprite (spr);
+    R_DrawVisSprite (spr, abs(spr->xiscale)>>detailshift);
 }
 
 

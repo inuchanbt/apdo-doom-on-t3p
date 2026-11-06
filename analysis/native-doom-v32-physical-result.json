@@ -1,0 +1,57 @@
+{
+  "revision": 32,
+  "reported_date": "2026-11-05",
+  "status": "USER-REPORTED GAMEPLAY; performance improvement unconfirmed",
+  "image_sha256": "e40c9f5e3450c5ba8218bc525bf8ed926331052d63c94ee01512436641574b67",
+  "confirmed": {
+    "game_screen_rendered": true,
+    "firing_frame_visible": true
+  },
+  "user_impression": "Possibly faster, but uncertain.",
+  "measurement": "Second diagnostic row: frame_ms_excluding_overlay; hexadecimal values transcribed after magnifying photo crops.",
+  "snapshots": [
+    {
+      "phase": "initial",
+      "v31_hex": "3D1",
+      "v31_frame_ms": 977,
+      "v32_hex": "3D9",
+      "v32_frame_ms": 985
+    },
+    {
+      "phase": "settled",
+      "v31_hex": "2E2",
+      "v31_frame_ms": 738,
+      "v32_hex": "2F4",
+      "v32_frame_ms": 756
+    },
+    {
+      "phase": "firing",
+      "v31_hex": "2F9",
+      "v31_frame_ms": 761,
+      "v32_hex": "370",
+      "v32_frame_ms": 880
+    }
+  ],
+  "comparison_reference": "analysis/native-doom-v31-physical-result.json",
+  "limitations": [
+    "Each number is one frame, not an average.",
+    "Simulation and animation timings were not matched across versions.",
+    "V31 also uses an 8-bit prefix table; V32 uses the V30 7-bit table, so this comparison does not isolate codecs."
+  ],
+  "conclusion": "No demonstrated overall speedup from these photos. Retain V30 as the measured baseline; hybrid selection needs an averaged comparison.",
+  "raw_photos_in_repository": false,
+  "photos": [
+    {
+      "name": "1-photo.jpg",
+      "sha256": "87da2a3432a4492428d55ab29d80b9fca79be505a71933518029950b31e7cc03"
+    },
+    {
+      "name": "2-photo.jpg",
+      "sha256": "be4d4c6dcf532c4c87096a8bd76f0eca2e1a03ba29e7367b7669b50487d492ed"
+    },
+    {
+      "name": "3-photo.jpg",
+      "sha256": "92515962c57a5c5c2d73dd7a9669562cfc7a607203862d588e164ac91d898665"
+    }
+  ]
+}

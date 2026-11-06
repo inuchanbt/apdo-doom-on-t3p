@@ -38,6 +38,10 @@
 #include "p_pspr.h"
 #include "things.h"
 
+#ifdef T3P_HAPTICS
+extern void km_weapon_fired(void);
+#endif
+
 #define LOWERSPEED		FRACUNIT*6
 #define RAISESPEED		FRACUNIT*6
 
@@ -497,6 +501,10 @@ static void DecreaseAmmo(player_t *player, int ammonum, int amount)
     {
         player->maxammo[ammonum - NUMAMMO] -= amount;
     }
+#ifdef T3P_HAPTICS
+    if (player == &players[consoleplayer])
+        km_weapon_fired();
+#endif
 }
 
 

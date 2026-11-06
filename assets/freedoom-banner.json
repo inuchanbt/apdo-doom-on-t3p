@@ -1,0 +1,14 @@
+{
+  "asset": "Freedoom Phase 1 menu logo",
+  "release": "0.13.0",
+  "release_url": "https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip",
+  "release_sha256": "3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59",
+  "wad_member": "freedoom-0.13.0/freedoom1.wad",
+  "lump": "M_DOOM",
+  "lump_sha256": "73d4aab101d9ef0598adbbe0cef5614792658ef2c5a4025529eef5783e262165",
+  "width": 159,
+  "height": 37,
+  "format": "little-endian u16 width, height, then row-major RGB565; transparency flattened onto black",
+  "sha256": "e045db13adc950717ba167b27a22871a600c872717b90afe001cd24ce6f579f5",
+  "license": "Freedoom modified BSD; see notices/freedoom-0.13.0/COPYING.txt and CREDITS.txt"
+}

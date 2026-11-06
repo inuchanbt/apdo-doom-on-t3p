@@ -82,9 +82,10 @@ void R_PaletteChanged(void)
     fe.flags &= ~FE_HASHED;
 }
 
-void R_BandCompose(int x0, int x1, int lcdy, int y0, int h, void (*draw)(void))
+static void band_compose(int x0, int x1, int lcdy, int y0, int h,
+                         void (*draw)(void), int flags)
 {
-    R_PumpWindow(x0, x1, lcdy, lcdy + h - 1, PUMP_UI);
+    R_PumpWindow(x0, x1, lcdy, lcdy + h - 1, PUMP_UI | flags);
     for (int a = x0; a <= x1;) {
         int bytes;
         uint8_t *buf = R_BandBuffer(&bytes);
@@ -113,6 +114,11 @@ void R_BandCompose(int x0, int x1, int lcdy, int y0, int h, void (*draw)(void))
     }
 }
 
+void R_BandCompose(int x0, int x1, int lcdy, int y0, int h, void (*draw)(void))
+{
+    band_compose(x0, x1, lcdy, y0, h, draw, 0);
+}
+
 void R_BandFlush(int hud, int bar)
 {
     // A frame with the 3D view composes in its strip buffers, which lie in the overlay window.
@@ -128,10 +134,9 @@ void R_BandFlush(int hud, int bar)
         hud_shown = !hud;
         bar_shown = !bar;
     }
-    if (hud && (hud_dirty || !hud_shown))
-        R_BandCompose(0, SCREENWIDTH - 1, LCD_HUD_Y, HU_MSGY, LCD_BAR_Y - LCD_HUD_Y, HU_DrawBand);
-    else if (!hud && hud_shown)
-        R_BandCompose(0, SCREENWIDTH - 1, LCD_HUD_Y, HU_MSGY, LCD_BAR_Y - LCD_HUD_Y, NULL);
+    if (hud != hud_shown || (hud && hud_dirty))
+        band_compose(0, SCREENWIDTH - 1, LCD_HUD_Y, HU_MSGY,
+                     LCD_BAR_Y - LCD_HUD_Y, hud ? HU_DrawBand : NULL, PUMP_HUD);
     hud_shown = hud;
     hud_dirty = 0;
 

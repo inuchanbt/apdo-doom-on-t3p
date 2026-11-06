@@ -1,4 +1,4 @@
-"""Create a random-access, independently deflated 4KiB page game pack offline."""
+"""Create a random-access page pack: DEFLATE/raw v1, optional LZ4 hybrid v2."""
 import argparse
 import hashlib
 import json
@@ -12,9 +12,14 @@ PAGE=4096
 MAGIC=b'T3PGAME1'
 
 
-def pack(raw,page_size=PAGE,raw_pages=(),try_strategies=False):
+def pack(raw,page_size=PAGE,raw_pages=(),try_strategies=False,lz4_pages=()):
     if not 0<len(raw)<=0x400000:
         raise ValueError('Game pack must contain 1..4MiB')
+    lz4_pages=set(lz4_pages)
+    if lz4_pages:
+        import lz4.block
+        if any(p<0 or p>=(len(raw)+page_size-1)//page_size for p in lz4_pages):
+            raise ValueError('LZ4 page outside pack')
     pages=[]
     for start in range(0,len(raw),page_size):
         block=raw[start:start+page_size]
@@ -27,7 +32,15 @@ def pack(raw,page_size=PAGE,raw_pages=(),try_strategies=False):
                 if len(candidate)<len(compressed):
                     compressed=candidate
         stored=compressed if start//page_size not in raw_pages and len(compressed)<len(block) else block
-        pages.append((stored,len(stored)|(0x80000000 if stored is block else 0),len(block),zlib.crc32(block)))
+        codec=0x80000000 if stored is block else 0
+        if start//page_size in lz4_pages:
+            candidates=[lz4.block.compress(block,mode='high_compression',compression=level,
+                                           store_size=False) for level in (9,12)]
+            candidate=min(candidates,key=len)
+            if len(candidate)>=len(block):
+                raise ValueError('Selected LZ4 page is not smaller than raw data')
+            stored,codec=candidate,0x40000000
+        pages.append((stored,len(stored)|codec,len(block),zlib.crc32(block)))
     offset=64+16*len(pages)
     table=bytearray()
     payload=bytearray()
@@ -35,25 +48,42 @@ def pack(raw,page_size=PAGE,raw_pages=(),try_strategies=False):
         table+=struct.pack('<4I',offset,flags,length,crc)
         payload+=stored
         offset+=len(stored)
-    header=struct.pack('<8s6I32s',MAGIC,1,len(raw),page_size,len(pages),offset,zlib.crc32(table),hashlib.sha256(raw).digest())
+    header=struct.pack('<8s6I32s',MAGIC,2 if lz4_pages else 1,len(raw),page_size,len(pages),offset,zlib.crc32(table),hashlib.sha256(raw).digest())
     return header+table+payload
 
 
 def verify(image,raw,page_size=PAGE):
     magic,version,size,page,count,total,crc,digest=struct.unpack_from('<8s6I32s',image)
-    if (magic,version,size,page,total,digest)!=(MAGIC,1,len(raw),page_size,len(image),hashlib.sha256(raw).digest()):
+    if version not in (1,2) or (magic,size,page,total,digest)!=(MAGIC,len(raw),page_size,len(image),hashlib.sha256(raw).digest()):
         raise ValueError('Header mismatch')
+    if count!=(len(raw)+page_size-1)//page_size or count>(len(image)-64)//16:
+        raise ValueError('Page count mismatch')
     table=image[64:64+16*count]
     if zlib.crc32(table)!=crc:
         raise ValueError('Table CRC mismatch')
     restored=bytearray()
+    next_offset=64+16*count
     for offset,flags,length,crc in struct.iter_unpack('<4I',table):
-        stored=image[offset:offset+(flags&0x7fffffff)]
-        block=stored if flags&0x80000000 else zlib.decompress(stored,-15)
+        codec=flags&0xc0000000
+        if codec==0xc0000000 or (version==1 and codec==0x40000000):
+            raise ValueError('Invalid codec flags')
+        stored_size=flags&0x3fffffff
+        expected=min(page_size,len(raw)-len(restored))
+        if (offset!=next_offset or not stored_size or offset+stored_size>len(image) or
+            length!=expected or (codec==0x80000000 and stored_size!=length) or
+            (codec!=0x80000000 and stored_size>=length)):
+            raise ValueError('Invalid page range or size')
+        next_offset+=stored_size
+        stored=image[offset:offset+stored_size]
+        if codec==0x40000000:
+            import lz4.block
+            block=lz4.block.decompress(stored,uncompressed_size=length)
+        else:
+            block=stored if codec==0x80000000 else zlib.decompress(stored,-15)
         if len(block)!=length or zlib.crc32(block)!=crc:
             raise ValueError('Page integrity failure')
         restored+=block
-    if restored!=raw:
+    if next_offset!=len(image) or restored!=raw:
         raise ValueError('Roundtrip mismatch')
 
 

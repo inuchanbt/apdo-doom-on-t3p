@@ -1,0 +1,17 @@
+{
+  "revision": 49,
+  "reported_date": "2026-11-06",
+  "status": "USER-REPORTED HARDWARE SUCCESS",
+  "image_sha256": "e0a9aebfc945ecc3ba41f0d41eab768c5a3a2e0e2b07ce67829b52472829b517",
+  "build_reference": "analysis/native-doom-v49-build-reference.json",
+  "verification_method": "User's report from a V49 play session on the ATORCH T3P.",
+  "confirmed": {
+    "left_button_short_press_single_shot": true,
+    "left_button_hold_repeated_fire": true,
+    "melee_at_zero_ammo": true,
+    "continuous_gameplay_reported": true
+  },
+  "reported_minimum_duration_seconds": 120,
+  "user_impression": "Controls felt responsive.",
+  "normal_play_fps": null
+}

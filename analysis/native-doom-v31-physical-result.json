@@ -1,0 +1,26 @@
+{
+  "revision": 31,
+  "status": "USER-REPORTED GAMEPLAY; no clear perceived speedup over V30",
+  "image_sha256": "4d1fa517cb872ac5b6abcb88e269d274f420a48887940a08b428562d5f869792",
+  "confirmed": {
+    "game_screen_rendered": true,
+    "firing_frame_visible": true
+  },
+  "performance_result": "User reports little perceived change. Three diagnostic snapshots are not a matched 30-frame benchmark, so no average speedup is claimed.",
+  "raw_photos_in_repository": false,
+  "photos": [
+    {
+      "name": "1-photo.jpg",
+      "sha256": "a48ad0729c10beb58fea828fb778fb89390ec080da1db2fb07249e2757ac1eda"
+    },
+    {
+      "name": "2-photo.jpg",
+      "sha256": "109dd0fb1de86b09ae9e3606d80c73a2c0a5a2bed129e2658e951371c3e144ce"
+    },
+    {
+      "name": "3-photo.jpg",
+      "sha256": "94b14cb8468c72a32c4e42f7fd59e6c41e478cff2c7f439927305fe6dd0a6c6c"
+    }
+  ],
+  "decision": "Retain V30 as the measured baseline; do not claim an 8-bit lookup performance win."
+}

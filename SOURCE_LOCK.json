@@ -47,8 +47,8 @@
     "revision": "57ffa1f1d5e3dde19011b2127bd26d01689b694b",
     "license": "Zlib",
     "path": "vendor/tinf",
-    "tinflate_c_sha256": "e5cffc3f53aae2d914db5c50fd6d7cc4a5da246ead16b56a9efa0d15e19c7884",
-    "modifications": "Optional local-bit reader (V12+), forward match-copy unrolling (V26), and 7-bit Huffman prefix table (V27). Original license retained."
+    "tinflate_c_sha256": "a683504272446bf937f3a1ba489bf94e01f1e9b00d1ca63b327d7d5f9b34c293",
+    "modifications": "Optional local-bit reader (V12+), forward match-copy unrolling (V26), 7-bit Huffman prefix table (V27), configurable 7/8-bit lookup (V31). Original license retained. V39/V40 optionally resume long codes after the prefix depth and share identical named hot-loop objects for Flash/SRAM execution comparison; original license retained. V41/V42 add conditional raw-timer phase probes, call counters and optional 1/64 helper sampling; disabled in normal builds. V44 optionally batches short prefix-table literals with local input/output cursors; V43 retains the byte-identical V39 decoder as control."
   },
   "game_data": {
     "name": "Freedoom 0.13.0, existing KM003C converted E1M1 pack",
@@ -57,6 +57,25 @@
     "compressed_bytes": 1189607,
     "compressed_sha256": "3247cfe10f0d01ac54d5f1ffb4f92485cf449151b0d9e445f8f0e5df72e3d846",
     "format": "T3PGAME1 version 1"
+  },
+  "stock_firmware_3.0.3": {
+    "filename": "T3P Firmware Version 3.0.3.bin",
+    "sha256": "72571d747e9da86194deddae3802992f846415c45b82d7b28f8aa567af30acb2",
+    "use": "Local packaging and recovery input"
+  },
+  "game_data_lowres": {
+    "name": "Freedoom 0.13.0, reduced-detail E1M1",
+    "raw_bytes": 1189968,
+    "raw_sha256": "9c37adf3b6d2932f60addd4b25be3d2a6ed33569e49cd8096b5fc192f2c3498d",
+    "pack_bytes": 1199344,
+    "pack_sha256": "9febb635d1c66b1409938c444481e77a72a16a36ff4ee79a2d21c651ca40ae5f",
+    "page_bytes": 2048,
+    "raw_pages": 582,
+    "use": "V46 through V58 runtime data, generated locally by scripts/prepare_lowres_game.py"
+  },
+  "freedoom_startup_banner": {
+    "file": "assets/freedoom-banner.rgb565",
+    "provenance": "assets/freedoom-banner.json"
   },
   "pico-sdk": {
     "url": "https://github.com/raspberrypi/pico-sdk",
@@ -122,5 +141,11 @@
     "sha256": "a671c065bd04a85d05e9d4cef732df3ba4884c2218054f64d1a83fb5a43cffd5",
     "bytes": 6558342,
     "use": "Local instrument-command reference, not a release asset"
+  },
+  "python-lz4-host-only": {
+    "url": "https://github.com/python-lz4/python-lz4",
+    "version": "4.4.4",
+    "path": "local/host-lz4",
+    "use": "Optional offline V32 page compression and decoder cross-check; not included in firmware or repository"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "status": "HOST CHECKS PASS; V45/V46 device boot, quality and performance untested",
+  "existing_v44_scene_fingerprint": "C269CBCE",
+  "expected_v45_v46_scene_fingerprint": "EBC8D404",
+  "expected_final_game_tic": 40,
+  "expected_benchmark_frames": 30,
+  "compressed_and_raw_identical_frames_and_game_state": 148,
+  "virtual_gram_checked_after_every_frame": true,
+  "movement_turn_fire_workload_and_menu": true,
+  "host_reader_state_bytes": {
+    "compressed": 20840,
+    "raw_only": 288
+  },
+  "limitations": [
+    "No on-device execution, LCD-transfer timing or frame-rate measurement.",
+    "V44 uses different texture/sprite detail; use V45 versus V46 to isolate storage changes.",
+    "Input checks use host key injection; physical sensor and extra-button integration is unchanged."
+  ]
+}

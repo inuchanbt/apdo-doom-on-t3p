@@ -1,0 +1,99 @@
+{
+  "status": "USER-REPORTED HARDWARE RESULTS; one controlled 30-frame run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "single_tic_per_frame": true,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "units": "milliseconds; display values transcribed from magnified photographs as hexadecimal",
+  "raw_photos_in_repository": false,
+  "v33": {
+    "firmware_sha256": "7b903fb2824036d3228b3ee1651d131e94f3b5a018386120bc2d311d3c0bd74c",
+    "photo_sha256": "ac014074cabe95e75bee19d954562a1112a62c00f2f23cdd1447c53974831b9c",
+    "profile_rows_hex": [
+      "00000021",
+      "0000001E",
+      "0000D00E",
+      "0000029C",
+      "00000280",
+      "000002E0",
+      "000001AB",
+      "0000018E",
+      "000001E3",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE"
+    ],
+    "frame": {
+      "mean": 668,
+      "minimum": 640,
+      "maximum": 736
+    },
+    "decode": {
+      "mean": 427,
+      "minimum": 398,
+      "maximum": 483
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE"
+  },
+  "v34": {
+    "firmware_sha256": "0e5b6104411e0c48cbec4a758a2c46e0bfdb21a7d6c170968d618f8819df969b",
+    "photo_sha256": "2a85d545bc0c6bbe8892524578b9d0659a4b9005734597800259fd483e6373b7",
+    "profile_rows_hex": [
+      "00000022",
+      "0000001E",
+      "0000D00E",
+      "00000280",
+      "00000243",
+      "000002F1",
+      "000001BB",
+      "000001AE",
+      "000001F5",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE"
+    ],
+    "frame": {
+      "mean": 640,
+      "minimum": 579,
+      "maximum": 753
+    },
+    "decode": {
+      "mean": 443,
+      "minimum": 430,
+      "maximum": 501
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE"
+  },
+  "matching_final_game_tic": true,
+  "matching_indexed_frame_sequence_hash": true,
+  "mean_frame_time_reduction_percent": 4.192,
+  "mean_throughput_increase_percent": 4.375,
+  "interpretation": "Hybrid V34 reduced mean frame time from 668 to 640 ms (4.2%) in this workload. Combined decoder time increased from 427 to 443 ms; presentation stayed 83 ms. The aggregate result does not demonstrate faster decoding. The remaining timed work decreased by about 44 ms, but this benchmark does not identify which component caused that reduction.",
+  "limitations": [
+    "One run per variant; repeatability has not been established.",
+    "Integer millisecond averages are truncated by firmware.",
+    "Matching 40 tics and the FNV-1a image-sequence fingerprint support matched output, but the hash is not a cryptographic equality proof.",
+    "Input-free, one-tic-per-frame start-room workload; normal gameplay, firing and movement FPS are not measured.",
+    "V34 maximum frame time was 753 ms versus V33 736 ms; a tail-latency improvement is not established.",
+    "These results are not directly comparable with V28/V29 wall-clock-driven benchmarks."
+  ],
+  "decision": "Retain V30 as the gameplay baseline; V32 hybrid is now supported by a modest controlled mean-frame-time improvement. Profile raw-page copy, compressed fetch, CRC and renderer work before choosing further codec changes."
+}

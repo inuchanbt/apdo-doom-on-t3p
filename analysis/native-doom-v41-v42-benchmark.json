@@ -1,0 +1,186 @@
+{
+  "status": "USER-REPORTED fixed-tic hardware results; one run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "single_tic_per_frame": true,
+  "photo_dimensions": [
+    1276,
+    1702
+  ],
+  "raw_photos_in_repository": false,
+  "transcription": "Manually transcribed from original photographs and magnified crops. An experimental grid reader was not reliable and was not used as the data source. Revision identified by 0x29/0x2A; user corrected the initial V29/V30 caption to V41/V42.",
+  "tick_ms_numerator": 64,
+  "tick_ms_denominator": 375,
+  "v41": {
+    "firmware_sha256": "2a922fba38ddff3d93d7ee8d937fc4538e0f2b30d439b76ad443388de0d5a7c5",
+    "photo_sha256": "8951be4d00cfe9297f15a5837e872697cf06fd16e6279c0faa867c4ba3b3c8ea",
+    "profile_rows_hex": [
+      "00000029",
+      "0000001E",
+      "0000D00E",
+      "000002D9",
+      "000002BB",
+      "00000324",
+      "000001E9",
+      "000001CB",
+      "0000022A",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "00004167",
+      "00010639",
+      "00000000",
+      "00000C02",
+      "00000C02",
+      "00000000",
+      "00000000",
+      "003924EF",
+      "00000000",
+      "00000000",
+      "00140435",
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000000"
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "frame": {
+      "mean": 729,
+      "minimum": 699,
+      "maximum": 804
+    },
+    "decode": {
+      "mean": 489,
+      "minimum": 459,
+      "maximum": 554
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "phase_ticks_30_frames": {
+      "tree": 16743,
+      "payload": 67129,
+      "stored": 0
+    },
+    "phase_ms_per_frame": {
+      "tree": 95.249067,
+      "payload": 381.889422,
+      "stored": 0.0
+    },
+    "calls": {
+      "deflate": 3074,
+      "dynamic": 3074,
+      "fixed": 0,
+      "stored": 0,
+      "symbols": 3745007,
+      "getbits_base": 1311797
+    },
+    "helper_samples": {
+      "symbol_ticks": 0,
+      "symbol_samples": 0,
+      "extra_ticks": 0,
+      "extra_samples": 0,
+      "empty_ticks": 0,
+      "empty_count": 0,
+      "sample_shift": 0
+    }
+  },
+  "v42": {
+    "firmware_sha256": "8ab680459c09ed67070372f09d628518351ddd1820ddefccf819337d9a7cd3f0",
+    "photo_sha256": "c064aac7860b2065114ccb5ca1a1c79436dd6331727e2b03f6855293c492364b",
+    "profile_rows_hex": [
+      "0000002A",
+      "0000001E",
+      "0000D00E",
+      "00000336",
+      "00000332",
+      "000003B2",
+      "00000266",
+      "00000242",
+      "0000028A",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "00004986",
+      "0001500A",
+      "00000000",
+      "00000C02",
+      "00000C02",
+      "00000000",
+      "00000000",
+      "003924EF",
+      "000012A5",
+      "0000E494",
+      "00140435",
+      "00000333",
+      "00005011",
+      "00000392",
+      "000134A5",
+      "00000006"
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "frame": {
+      "mean": 822,
+      "minimum": 818,
+      "maximum": 946
+    },
+    "decode": {
+      "mean": 614,
+      "minimum": 578,
+      "maximum": 650
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "phase_ticks_30_frames": {
+      "tree": 18822,
+      "payload": 86026,
+      "stored": 0
+    },
+    "phase_ms_per_frame": {
+      "tree": 107.076267,
+      "payload": 489.392356,
+      "stored": 0.0
+    },
+    "calls": {
+      "deflate": 3074,
+      "dynamic": 3074,
+      "fixed": 0,
+      "stored": 0,
+      "symbols": 3745007,
+      "getbits_base": 1311797
+    },
+    "helper_samples": {
+      "symbol_ticks": 4773,
+      "symbol_samples": 58516,
+      "extra_ticks": 819,
+      "extra_samples": 20497,
+      "empty_ticks": 914,
+      "empty_count": 79013,
+      "sample_shift": 6,
+      "naive_extrapolated_symbol_ms_per_frame": 1737.796267,
+      "naive_extrapolated_extra_ms_per_frame": 298.1888
+    }
+  },
+  "interpretation": [
+    "Both completed 30 measured frames at tic 40 with fingerprint C269CBCE; helper and block counts match between variants.",
+    "V41 tree preparation averages about 95.25 ms/frame and compressed payload about 381.89 ms/frame. Payload is the dominant measured DEFLATE phase.",
+    "V41/V42 average frame times are 729/822 ms and outer decode times 489/614 ms. These instrumented timings must not be reported as improvements/regressions in normal gameplay.",
+    "The V42 symbol sample naive extrapolation exceeds the entire measured decode interval; quantization, probe/return/register overhead and deterministic sampling contaminate that estimate. Do not derive exact helper shares or mechanically subtract the empty probes.",
+    "Next controlled experiment: batch short literal symbols inside the payload loop with local bit cursor/output pointer; preserve fallback, bounds, long codes, matches and stored-block alignment."
+  ]
+}

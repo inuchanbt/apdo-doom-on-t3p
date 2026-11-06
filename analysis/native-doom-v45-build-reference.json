@@ -1,0 +1,196 @@
+{
+  "status": "OFFLINE VALIDATION PASS; device execution and speedup untested",
+  "purpose": "Actual DOOM engine linked to real MMIO backend",
+  "elf_sha256": "f138268548691145cc333ab0ebd8b8b545299d52f4c7922ea4bb11e1dad5561d",
+  "payload_sha256": "4765093f103a6ee9195a4958a2779f3e684d7d936475595fed2ada3bccd65833",
+  "app_bytes": 1465664,
+  "load_span_bytes": 720804,
+  "layout": {
+    "status": "OFFLINE SIZE/PLACEMENT CHECKS PASS; not a boot or hardware test",
+    "actual_static_ram_bytes": 165756,
+    "explicit_driver_ram_budget_bytes": 32768,
+    "explicit_stack_budget_bytes": 16384,
+    "remaining_ram_bytes": 3056,
+    "app_flash_budget_bytes": 1465664,
+    "flash_used_including_driver_budget": 802724,
+    "remaining_app_flash_bytes": 662940,
+    "entry_address": "0xc000100",
+    "reserved_rom_irq_end": "0x101a80",
+    "update_ram_excluded": [
+      "0x136e00",
+      "0x137000"
+    ],
+    "boot_parameters_outside_zeroed_bss": true,
+    "data_source_word_aligned": true,
+    "linked_cli_stack_parameter_save_and_call_targets_checked": true,
+    "ram_sections": [
+      {
+        "begin": "0x101a80",
+        "end": "0x101b0c",
+        "name": ".data"
+      },
+      {
+        "begin": "0x101b0c",
+        "end": "0x101b58",
+        "name": ".boot_state"
+      },
+      {
+        "begin": "0x101b60",
+        "end": "0x12a204",
+        "name": ".bss"
+      },
+      {
+        "begin": "0x12a210",
+        "end": "0x132210",
+        "name": ".driver_ram_budget"
+      },
+      {
+        "begin": "0x132e00",
+        "end": "0x136e00",
+        "name": ".runtime_stack"
+      }
+    ],
+    "tinf_hot_sram_functions": {},
+    "device_execution": false,
+    "complete_bsp": false
+  },
+  "initialized_hardware": [
+    "WDT disable",
+    "polling TIMER0 standard24MHz/4096",
+    "DBI divider selector 2; frequency unverified",
+    "PC0 reset",
+    "stock ST7789V sequence",
+    "synchronous DBI command operations",
+    "LCDPG static open drain"
+  ],
+  "CPU_PLL_and_SFC": "Inherited from stock bootloader, not retuned",
+  "ROM_imports": "No SDK maskrom address bindings",
+  "USB_APP_interface": false,
+  "device_access": false,
+  "device_flashed": false,
+  "device_tested": false,
+  "pending": [
+    "physical boot, low-resolution image quality and V45/V46 benchmark comparison",
+    "normal-play stability and input integration beyond known PA11"
+  ],
+  "expected_display": "10 warmup + 30 measured frames; 14 rows; input disabled; intentional D00E stop",
+  "restore": "artifacts/stock-restore-3.0.3/T3P Firmware Version 3.0.3.bin",
+  "source_sha256": {
+    "runtime_start.S": "68a031a5a058282092b35a763073b2ab6d07d04fdf68c0816ea8035cd1768225",
+    "runtime_memory.c": "5be53f2447b365c4b75c66b658d331b38dfe63d5bc48e3d431aaaa2db230df7f",
+    "t3p_signal.c": "d4249a642b9a47327f8ceee4e53fb0f5731bdff153830a8e5c1feaaef348d421",
+    "t3p_boot.c": "86be0b3889c7f630f00649b6bee69304e55c743fbd6a7bf36b2a3c66ba00f97d",
+    "t3p_bsp.c": "bb11cab863b4f72e02cbdf07d1fcba4670790ee258b043f0d7bd5782bb1e8854",
+    "t3p_lcd_sequence.c": "2a8c2830a2006e419d4ad828e29f7fd8c3fc32b890606fd6fd498750c92cb2a4",
+    "t3p_bsp_native.c": "ebd8ba93dae49334b2f837f49b42aeeb241f7a2c78e916cfb2b6fc40b9fc4484",
+    "bsp_platform.c": "04dfdd5a7c85a7ea9510beb37c17e14bec923e00c2a956a67acf58380c0fcf55",
+    "t3p_display.c": "03397c4d9a103acae60c00b32960ff7bf53f79d3a31d7a53f7840557465a6866",
+    "t3p_game.c": "dabc38df180bb115c9b3b5d21c53b24ba344dd8086935b2f857fe065d73a7841",
+    "../vendor/tinf/tinflate.c": "a683504272446bf937f3a1ba489bf94e01f1e9b00d1ca63b327d7d5f9b34c293",
+    "doom_bridge.c": "19b16f2819d661361d795a4479c7f032e379b5a7b11e0e12c90ca48ce2be9ebb",
+    "runtime_layout.ld": "559f78e0589eb86873e459a8a322076ddfc4b27819e46f143f534cee214f35c0",
+    "t3p_boot.h": "324a1d545c9636c506cd0afc549cabd84b56c739247fbb64488c01afd5fbea0b",
+    "t3p_signal.h": "20a7d0d44757f3dbd047d29795734b416365460d11a32dc30b50e92be173f78c",
+    "t3p_bsp.h": "73fa2debe2e9a23c4ef60a093a34ddc7d18b5e16e9411cc7b5f680761c999540",
+    "t3p_display.h": "366c8037352d4326845eead2175ae41cc361769cbe47215b9e00b78539a287f1",
+    "t3p_game.h": "a18babc19ed8ac956663f2c9c21b217cf5df65f37bae89f69c98b53c0c00cfcc"
+  },
+  "compiler_sha256": "d4bc97cf421c1ccc373dd8924ce88720ff7457b3f1478d15df4aeda6ae923bce",
+  "game_page_bytes": 2048,
+  "game_cache_pages": 35,
+  "game_forced_raw_pages": [],
+  "game_sha256": "10ce135e8ea1e87b560590d78ba1ca6748929dfb45f82e48ea40f2af268d8f7a",
+  "linker_script_sha256": "9de0f62bb3b1f523db8f531289155cfc3a395865c3794f1700fd54e75a4161e8",
+  "driver_flash_reserve_bytes": 81920,
+  "revision": 45,
+  "comparison_baseline_revision": 45,
+  "game_pack_bytes": 587058,
+  "inflate_prefix_bits": 7,
+  "benchmark": {
+    "warmup_frames": 10,
+    "measured_frames": 30,
+    "input_enabled": false,
+    "freeze_when_complete": true,
+    "single_tic_per_frame": true,
+    "logical_game_clock": "rendered frame counter / 35 Hz",
+    "measurement_clock": "unchanged hardware km_millis",
+    "frame_hash": "FNV-1a over 30 indexed frames; outside timed interval",
+    "instrumentation": "Same outer frame/decode/present timers and 1 tic per frame; compare V45 compressed with V46 all-raw using identical raw assets. V44 has different image detail."
+  },
+  "profile_rows": [
+    "revision_hex",
+    "measured_frames",
+    "done_0xd00e",
+    "frame_mean_ms",
+    "frame_min_ms",
+    "frame_max_ms",
+    "decode_mean_ms",
+    "decode_min_ms",
+    "decode_max_ms",
+    "present_mean_ms",
+    "present_min_ms",
+    "present_max_ms",
+    "final_game_tic",
+    "indexed_frame_sequence_hash"
+  ],
+  "inflate_prefix_continuation": true,
+  "decoder_change": "V44 decoder with the low-resolution asset set; no forced raw donor pages",
+  "decoder_hot_loops_in_sram": false,
+  "inflate_literal_runs": true,
+  "game_format_version": 1,
+  "game_raw_sha256": "9c37adf3b6d2932f60addd4b25be3d2a6ed33569e49cd8096b5fc192f2c3498d",
+  "game_data_profile": {
+    "base": 1,
+    "mips": 1,
+    "xshift": 1,
+    "ui_exclude": [
+      "HELP1"
+    ]
+  },
+  "game_raw_pages": 0,
+  "game_deflate_pages": 582,
+  "raw_game_only": false,
+  "image_sha256": "34392ff5033277995c376e26c369642cc0bb055b727a7c1af882e36eec77da80",
+  "image_bytes": 1540096,
+  "image_path": "artifacts/native-doom-v45/T3P_NATIVE_DOOM_E1M1_V45_3.0.3.bin",
+  "boot_prefix_20_KiB_identical": true,
+  "other_entries_and_resource_tail_identical": true,
+  "full_redecrypt_matches": true,
+  "all_four_nested_CRCs_rebuilt": true,
+  "hardware_backend_evidence": "analysis/native-bringup-v2-physical-success.json",
+  "changed_sources_since_hardware_test": [
+    "runtime_memory.c",
+    "t3p_bsp.c",
+    "bsp_platform.c",
+    "t3p_display.c",
+    "t3p_bsp.h",
+    "t3p_display.h"
+  ],
+  "doom_execution_verified": false,
+  "independent_unpack_verified": true,
+  "independent_unpack_other_files_identical": 44,
+  "independent_unpack_other_directories_identical": 2,
+  "expected_benchmark_final_tic": 40,
+  "expected_benchmark_frame_hash": "EBC8D404",
+  "engine_archive_sha256": "b384d6f04179f4330bbf4d0c0f7fa2698440a4e65941fd4304bb5f9107cfeb55",
+  "control_decoder_object_identical_to_v44": true,
+  "native_decoder_linked": true,
+  "offline_validation": {
+    "reader_pages": 582,
+    "reader_random_ranges": 5000,
+    "range_and_corruption_checks": true,
+    "raw_reader_rejects_compressed_container": true,
+    "host_engine_steps_per_variant": 148,
+    "host_pair_pixels_and_state_identical": true,
+    "existing_device_fingerprint_reproduced": true,
+    "regression_tests": 66
+  },
+  "measurement_limitations": [
+    "Prepared offline only: physical boot, LCD quality and performance remain untested.",
+    "Input is disabled and the final D00E stop is intentional in both benchmark builds.",
+    "Compare V45 and V46: raw assets are byte-identical and gameplay/frame hashes must match.",
+    "V44 has higher texture/sprite detail. The V44 to V46 change combines asset and storage changes.",
+    "V46 removes the unused decoder/cache buffers; its freed SRAM is not yet assigned to new caches.",
+    "CPU/PLL/SFC and LCD settings are unchanged. Host runtime is not an estimate of T3P FPS."
+  ]
+}

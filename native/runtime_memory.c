@@ -20,6 +20,9 @@ void t3p_runtime_memory_init(void)
 {
     t3p_runtime_copy_words(__runtime_data_start,__runtime_data_load,
         ((uintptr_t)__runtime_data_end-(uintptr_t)__runtime_data_start)/4u);
+#ifdef T3P_TINF_RAM_HOT
+    __asm__ volatile("csync" ::: "memory");
+#endif
     t3p_runtime_zero_words(__runtime_bss_start,
         ((uintptr_t)__runtime_bss_end-(uintptr_t)__runtime_bss_start)/4u);
 }

@@ -71,6 +71,7 @@ void lcd_recover(void);
 extern uint16_t pump_lut[256];
 
 #define PUMP_UI 2  // KM003C: retain all 320 UI columns when resizing the world
+#define PUMP_HUD 4  // HUD message pixels can overlay the T3P view
 #define PUMP_DOUBLE 1  // low detail: every submitted column is sent twice
 
 // Opens the window x0..x1, y0..y1 (one RAMWR). Column height h = y1 - y0 + 1 must be a

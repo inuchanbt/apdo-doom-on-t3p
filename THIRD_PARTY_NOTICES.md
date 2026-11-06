@@ -1,8 +1,8 @@
 # Source scope and third-party notices
 
 The native DOOM integration and new native input/sensor code are
-GPL-2.0-or-later. See `COPYING` and source headers. This is a research source
-workspace, not a completed firmware or binary release.
+GPL-2.0-or-later. See `COPYING` and source headers. This repository publishes the
+experimental port's source, documentation and selected validation records.
 
 The separate auxiliary-board diagnostic in `recovery/cm_input_check` is MIT
 licensed, with its full license in that directory. It contains no DOOM engine,
@@ -47,6 +47,11 @@ BSD-3-Clause, Copyright (c) 2001-2024 Contributors to the Freedoom project;
 embedded engine strings and tables remain GPL-2.0-or-later. Original notices
 are in `notices/freedoom-0.13.0` and copied beside generated game data. The
 compression changes the storage format, not the game content or its licenses.
+
+The startup banner in `assets/freedoom-banner.rgb565` is the Freedoom 0.13.0
+Phase 1 `M_DOOM` logo copied from the KM003C port. The asset's provenance and
+hash are in `assets/freedoom-banner.json`. Its copyright and BSD conditions
+are in `notices/freedoom-0.13.0/COPYING.txt` and `CREDITS.txt`.
 
 Manufacturer firmware, PC software, unpacked images, individual device data,
 JieLi SDK sources, official toolchain binaries and extraction tools are local

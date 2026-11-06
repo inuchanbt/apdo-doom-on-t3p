@@ -1,0 +1,36 @@
+{
+  "status": "HOST ENGINE AND DEFERRED DMA CHECKS PASS; hardware boot/speed untested",
+  "frames_per_variant": 148,
+  "expected_benchmark_frame_hash": "EBC8D404",
+  "expected_final_game_tic": 40,
+  "all_pixels_and_game_state_match_v46": true,
+  "deferred_virtual_gram_checked_every_frame": true,
+  "final_dma_drain_checked": true,
+  "movement_turn_fire_and_menu": true,
+  "serial": {
+    "submitted": 146,
+    "completed": 146,
+    "retained_source_checks": 8760,
+    "pending": 0,
+    "service_calls": 234258,
+    "state_bytes_host": 44728
+  },
+  "overlap": {
+    "submitted": 146,
+    "completed": 146,
+    "retained_source_checks": 8760,
+    "pending": 0,
+    "service_calls": 231944,
+    "state_bytes_host": 44728
+  },
+  "source_sha256": {
+    "native/t3p_present.c": "bd7a98019e544e97e1f4e34e1241992bdf42e1088d34596e79382c201f93305e",
+    "native/t3p_present.h": "fd87447dde6991f253e35bf91faee9ad3970fabcc9a9a72f472529b53a386d4e",
+    "native/host_harness.c": "37fcb245d02625e7e6396525cdd832e3c7677224c5cd7fe5b262ccbee71d54c1"
+  },
+  "limitations": [
+    "No device execution or speed measurement.",
+    "Host DMA delays model ownership, not T3P wall-clock performance.",
+    "Hardware benchmarking includes the checksum and a final DMA drain in both new variants."
+  ]
+}

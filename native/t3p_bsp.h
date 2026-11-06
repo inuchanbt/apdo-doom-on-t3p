@@ -2,6 +2,9 @@
 #ifndef T3P_BSP_H
 #define T3P_BSP_H
 #include <stdint.h>
+#ifdef T3P_HAPTICS
+#include "t3p_haptics.h"
+#endif
 struct t3p_bsp_io {
     void *context;
     uint32_t (*read32)(void *,uint32_t);
@@ -13,10 +16,13 @@ struct t3p_bsp {
     uint32_t milliseconds,fraction,operations;
     uint16_t previous_tick;
     uint8_t ready,failed;
+#ifdef T3P_HAPTICS
+    struct t3p_haptics haptics;
+#endif
 };
 /* Owns TIMER0 and the DBI command engine with interrupts disabled. CPU/PLL/SFC
- * clock configuration is inherited from the stock bootloader. No Flash
- * programming, measurements, triggers, motor or charger control is performed.
+ * clock configuration is inherited from the stock bootloader. TIMER0 polling
+ * also enforces the motor deadline in builds with haptics enabled.
  */
 int t3p_bsp_init(struct t3p_bsp *,const struct t3p_bsp_io *);
 uint32_t t3p_bsp_millis(struct t3p_bsp *);
@@ -26,6 +32,10 @@ int t3p_bsp_command(struct t3p_bsp *,uint8_t,const uint8_t *,uint32_t);
 int t3p_bsp_rectangle(void *,uint16_t,uint16_t,uint16_t,uint16_t,const uint16_t *,uint32_t);
 #ifdef T3P_DBI_ASYNC
 int t3p_bsp_dma_wait(struct t3p_bsp *);
+#ifdef T3P_FRAME_PRESENTER
+/* Nonblocking: 0 busy, 1 idle, negative on a latched transport failure. */
+int t3p_bsp_dma_poll(struct t3p_bsp *);
+#endif
 #endif
 void t3p_bsp_backlight(struct t3p_bsp *,int);
 #ifndef T3P_BSP_HOST

@@ -33,4 +33,21 @@ struct t3p_input {
 };
 void t3p_input_reset(struct t3p_input *state);
 uint32_t t3p_input_update(struct t3p_input *state, const struct t3p_input_sample *sample);
+
+enum t3p_button {
+    T3P_BUTTON_LEFT = 1u,
+    T3P_BUTTON_RIGHT = 2u,
+    T3P_BUTTON_BOTH = T3P_BUTTON_LEFT | T3P_BUTTON_RIGHT
+};
+
+/* Zero-initialize. Sample pressed levels during rendering and consume the
+ * latched actions only when the engine can build a tic command.
+ */
+struct t3p_buttons {
+    uint32_t candidate_since, chord_since;
+    uint8_t candidate, stable, pending, single_ready;
+    uint8_t locked, chord_tracking, escape_pending, menu, pulse_sent;
+};
+void t3p_buttons_sample(struct t3p_buttons *state, unsigned pressed, uint32_t now_ms);
+uint32_t t3p_buttons_take(struct t3p_buttons *state, int menu);
 #endif

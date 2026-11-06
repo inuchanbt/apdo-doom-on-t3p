@@ -1,0 +1,47 @@
+{
+  "status": "USER-REPORTED HARDWARE RESULTS; one 30-frame run per variant",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "source": "Six user-provided photos: warmup, interim and final for each revision; final photos 3 and 6",
+  "units": "milliseconds; display values are hexadecimal",
+  "v28": {
+    "prefix_table_enabled": false,
+    "frame": {
+      "mean": 753,
+      "minimum": 718,
+      "maximum": 800
+    },
+    "decode": {
+      "mean": 496,
+      "minimum": 474,
+      "maximum": 560
+    },
+    "present": {
+      "mean": 83
+    }
+  },
+  "v29": {
+    "prefix_table_enabled": true,
+    "frame": {
+      "mean": 698,
+      "minimum": 670,
+      "maximum": 740
+    },
+    "decode": {
+      "mean": 452,
+      "minimum": 428,
+      "maximum": 487
+    },
+    "present": {
+      "mean": 83
+    }
+  },
+  "interpretation": "About 7.3 percent lower mean frame time and 8.9 percent lower mean decode time in these runs. Presentation remains about 83 ms. Warmup zeros, ignored fire input and the final freeze are intentional benchmark behavior.",
+  "limitations": [
+    "One run per variant; not a statistical repeatability study.",
+    "Wall-clock-driven game progression is not guaranteed to produce identical simulation frames between variants."
+  ],
+  "decision": "V30 adopts the V29 prefix decoder with regular fire input and continuous gameplay restored."
+}

@@ -47,6 +47,10 @@ extern uint32_t km_cycles(void);
 static int ui_window;
 extern uint32_t km_keys(void);
 extern void km_exit(void) __attribute__((noreturn));
+#ifdef T3P_HAPTICS
+extern void km_damage_taken(void);
+extern void km_haptics_begin_frame(int gameplay);
+#endif
 
 #ifdef KM_FAST_ARENA
 uint8_t km_engine_ram[32768] __attribute__((section(".doom_arena"), aligned(16)));
@@ -196,7 +200,9 @@ void lcd_fill(int x0,int y0,int x1,int y1,uint16_t c) {
     lcd_begin(x0,y0,x1,y1); for(int x=x0;x<=x1;x++) for(int y=y0;y<=y1;y++) lcd_push(c); lcd_end();
 }
 void pump_begin(int x0,int x1,int y0,int y1,int flags) {
-    lcd_begin(x0,y0,x1,y1); reps=(flags&PUMP_DOUBLE)?2:1;ui_window=!!(flags&PUMP_UI);
+    lcd_begin(x0,y0,x1,y1);
+    reps=(flags&PUMP_DOUBLE)?2:1;
+    ui_window=flags&(PUMP_UI|PUMP_HUD);
 }
 void pump_submit(const uint8_t *p,int ncols) {
 #ifdef T3P_INDEXED_FRAME
@@ -223,7 +229,14 @@ void I_StartFrame(void) {}
 void I_UpdateNoBlit(void) {}
 void I_FinishUpdate(void) {}
 void I_SetPalette(int p) { R_PaletteChanged();pal_read(p,pump_lut); }
+#ifdef T3P_DUAL_KEYS
+boolean D_WillBuildTic(void);
+#endif
 void I_StartTic(void) {
+#ifdef T3P_DUAL_KEYS
+    /* A short press must survive a full ticcmd queue. */
+    if (!D_WillBuildTic()) return;
+#endif
     static uint32_t previous;
     uint32_t next=km_keys();
     const int keys[]={KEY_FIRE,KEY_UPARROW,KEY_LEFTARROW,KEY_RIGHTARROW,KEY_USE,KEY_ESCAPE,KEY_ENTER,KEY_DOWNARROW,
@@ -234,8 +247,15 @@ void I_StartTic(void) {
     }
     previous=next;
 }
+#ifdef T3P_BENCH_FIXED_TICS
+/* Keep scene progression independent of the real decompression speed. */
+extern volatile uint32_t t3p_native_frames;
+int I_GetTimeMS(void) { return t3p_native_frames*1000u/35u; }
+int I_GetTime(void) { return t3p_native_frames; }
+#else
 int I_GetTimeMS(void) { return km_millis(); }
 int I_GetTime(void) { uint32_t ms=km_millis();return ms/1000*35+ms%1000*35/1000; }
+#endif
 void I_Sleep(int ms) { km_sleep(ms>0?(uint32_t)ms:1); }
 void I_InitTimer(void) {}
 void I_WaitVBL(int count) { km_sleep((uint32_t)count*1000/70); }
@@ -243,7 +263,16 @@ void I_Error(char *fmt,...) {
     char msg[128];va_list ap;va_start(ap,fmt);plat_vfmt(msg,sizeof(msg),fmt,ap);va_end(ap);km_fail(msg);
 }
 void I_Quit(void) { km_exit(); }
-void I_Tactile(int a,int b,int c) { (void)a;(void)b;(void)c; }
+void I_Tactile(int on,int off,int total)
+{
+    (void)off;
+#ifdef T3P_HAPTICS
+    /* P_DamageMobj calls this for the local player after armour. */
+    if(total>on)km_damage_taken();
+#else
+    (void)on;(void)total;
+#endif
+}
 void I_InitSound(boolean v) { (void)v; }
 void I_UpdateSound(void) {}
 int I_GetSfxLumpNum(sfxinfo_t *s) { (void)s;return 0; }
@@ -316,15 +345,39 @@ void km_doom_init(void) {
     II_Configure(ii_presets[0],0,1);
     G_InitNew(sk_medium,1,1);
     V_RestoreBuffer();R_ExecuteSetViewSize();D_StartGameLoop();D_ResetTics();
+#ifdef T3P_BENCH_FIXED_TICS
+    singletics=1;
+#endif
     km_present();
 }
 void D_Display(void);
 static uint32_t simulation_cycles;
+#ifdef T3P_PROFILE_BREAKDOWN
+uint32_t t3p_sim_ms,t3p_render_ms,t3p_present_call_ms;
+#endif
 void km_doom_step(void) {
+#ifdef T3P_PROFILE_BREAKDOWN
+    uint32_t phase=km_millis();
+#endif
     uint32_t start=km_cycles();
     I_StartFrame();TryRunTics();
     simulation_cycles=km_cycles()-start;
-    S_UpdateSounds(players[consoleplayer].mo);D_Display();km_present();
+#ifdef T3P_PROFILE_BREAKDOWN
+    uint32_t now=km_millis();
+    t3p_sim_ms=now-phase;phase=now;
+#endif
+    S_UpdateSounds(players[consoleplayer].mo);
+#ifdef T3P_HAPTICS
+    km_haptics_begin_frame(gamestate==GS_LEVEL && !paused && !menuactive && !messageToPrint);
+#endif
+    D_Display();
+#ifdef T3P_PROFILE_BREAKDOWN
+    now=km_millis();t3p_render_ms=now-phase;phase=now;
+#endif
+    km_present();
+#ifdef T3P_PROFILE_BREAKDOWN
+    t3p_present_call_ms=km_millis()-phase;
+#endif
 }
 void km_doom_state(uint32_t *state) {
     player_t *p=&players[consoleplayer];

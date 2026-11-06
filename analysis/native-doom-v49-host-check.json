@@ -1,0 +1,46 @@
+{
+  "status": "HOST NORMAL-CLOCK PLAY CHECKS PASS; V49 device trial pending",
+  "steps_per_variant": 668,
+  "injected_clock_ms": 81554,
+  "final_game_tic": 2746,
+  "multiple_tic_frames": 590,
+  "no_draw_frames": 2,
+  "ammo_before": 50,
+  "ammo_after_fire": 39,
+  "all_indexed_RGB565_frames_and_game_state_identical": true,
+  "fire_move_turn_menu_and_continuation_past_frame_40": true,
+  "deferred_ownership_and_completed_gram_checked_each_step": true,
+  "final_dma_drain_checked": true,
+  "serial": {
+    "submitted": 666,
+    "completed": 666,
+    "retained_source_checks": 39960,
+    "pending": 0,
+    "service_calls": 1213795
+  },
+  "overlap": {
+    "submitted": 666,
+    "completed": 666,
+    "retained_source_checks": 39960,
+    "pending": 0,
+    "service_calls": 1203159
+  },
+  "host_library_sha256": {
+    "serial": "1e6a15556dd262a9d50a5867f467e3f1ab99dba73ccc52a7634efe1083317290",
+    "overlap": "7d305a661a96b63a50d1a93bd2b99de3e67118fe7c750f412fe38a7809d82bda"
+  },
+  "source_sha256": {
+    "native/t3p_present.c": "bd7a98019e544e97e1f4e34e1241992bdf42e1088d34596e79382c201f93305e",
+    "native/t3p_present.h": "fd87447dde6991f253e35bf91faee9ad3970fabcc9a9a72f472529b53a386d4e",
+    "native/host_harness.c": "315e2de45b1196a80d50169b3847979bc9fdc583cdce05767a26e1b1cdeb3f2b",
+    "native/doom_bridge.c": "19b16f2819d661361d795a4479c7f032e379b5a7b11e0e12c90ca48ce2be9ebb",
+    "tests/host_play_probe.c": "578710b6f2aa0c96ed3474767f8642c4d78ebdd4d4e3dc19c9b9abee343f6959",
+    "scripts/build_engine.py": "a41b4237dec1a566f2775d9cd55ec7b29c5360e020941732973065e3605b2c3b",
+    "scripts/check_play_pipeline.py": "7bf8b3ec48d2d7283d880a2ebbc1bdbf67676edb5ff050338a2a316dca8389fb"
+  },
+  "limitations": [
+    "No physical button, sensor or device execution in this host check.",
+    "Injected game clock and poll delays are not a hardware FPS or endurance measurement.",
+    "Movement/menu checks use synthetic input; only the known PA11 fire key is wired in V49."
+  ]
+}

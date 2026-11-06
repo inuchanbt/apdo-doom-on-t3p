@@ -1,0 +1,202 @@
+{
+  "status": "OFFLINE CAPACITY STUDY ONLY: no native integration, image quality or speed test",
+  "source_wad_sha256": "7323bcc168c5a45ff10749b339960e98314740a734c30d4b9f3337001f9e703d",
+  "method": "Repack cached Freedoom 0.13.0 E1M1 with the existing DMC100 converter. The baseline is asserted byte-identical to the current 2,802,000-byte raw pack. All-raw T3PGAME1 containers use the existing 2 KiB format and are roundtrip-verified.",
+  "existing_v44_pack_bytes": 1249137,
+  "existing_v44_flash_headroom_bytes": 860,
+  "asset_budget_initial_upper_bound_bytes": 1249997,
+  "budget_limitations": "V44 pack plus its current 860-byte Flash headroom. A new direct-reader integration changes code size and layout, so this is only an initial capacity check.",
+  "runtime_limitations": [
+    "No firmware was built or flashed and no host engine or device execution was performed.",
+    "Downsampled textures/sprites reduce image detail; palette color count is retained. Quality has not been inspected.",
+    "HELP1 exclusion removes the help-screen asset; menu behavior needs validation.",
+    "Removing the DEFLATE page cache can release 35 x 2048 = 71680 data bytes, but requires native reader/static-memory changes.",
+    "Flash reads, copying and rendering remain nonzero. No frame-rate gain has been measured."
+  ],
+  "cases": [
+    {
+      "label": "original",
+      "raw_bytes": 2802000,
+      "sha256": "6b25a4f1adb6f1f1f5f42226c272b93ccff4f356ac8d7034cf83712b2da70c08",
+      "config_changes": {},
+      "options": {},
+      "all_raw_container_bytes": 2823968,
+      "all_raw_page_count": 1369,
+      "all_raw_container_sha256": "d96f2eecc5a507ca03749437ed641d1046234392bcfea0e9fed633a6b719460c",
+      "all_raw_roundtrip_verified": true,
+      "all_raw_container_headroom_bytes": -1573971,
+      "sections": {
+        "PALETTE": 7168,
+        "TEXDIR": 1968,
+        "SPRDEF": 5360,
+        "SOUNDS": 5527,
+        "STRINGS": 3446,
+        "UIDIR": 476,
+        "ANIMS": 48,
+        "PATCHDIR": 2156,
+        "FLATS": 53296,
+        "TEXDATA": 1641856,
+        "PATCHDATA": 955968,
+        "DEMOS": 4
+      }
+    },
+    {
+      "label": "half-walls",
+      "raw_bytes": 1506880,
+      "sha256": "23601f100aff3d699d680a60a981e19239eb2a406c565bc4a897c29b8b1b9fd6",
+      "config_changes": {
+        "base": 1,
+        "mips": 1
+      },
+      "options": {},
+      "all_raw_container_bytes": 1518720,
+      "all_raw_page_count": 736,
+      "all_raw_container_sha256": "0eb0d8c4ceb2bf35b0c5039fc2a110b33153d57ae6d3c521aa4123712c35c7a4",
+      "all_raw_roundtrip_verified": true,
+      "all_raw_container_headroom_bytes": -268723,
+      "sections": {
+        "PALETTE": 7168,
+        "TEXDIR": 1968,
+        "SPRDEF": 5360,
+        "SOUNDS": 5527,
+        "STRINGS": 3446,
+        "UIDIR": 476,
+        "ANIMS": 48,
+        "PATCHDIR": 2156,
+        "FLATS": 53296,
+        "TEXDATA": 346736,
+        "PATCHDATA": 955968,
+        "DEMOS": 4
+      }
+    },
+    {
+      "label": "half-walls-sprite-width",
+      "raw_bytes": 1256864,
+      "sha256": "3949bf02703ce9bc4772944a12045eb86781ab0d9d6cff10fcd9957dfdb65ddd",
+      "config_changes": {
+        "base": 1,
+        "mips": 1,
+        "xshift": 1
+      },
+      "options": {},
+      "all_raw_container_bytes": 1266752,
+      "all_raw_page_count": 614,
+      "all_raw_container_sha256": "3baa53da88d1801e2e2cdb4360d912adaa35e6797c3dde0f1db7fe01a97702ed",
+      "all_raw_roundtrip_verified": true,
+      "all_raw_container_headroom_bytes": -16755,
+      "sections": {
+        "PALETTE": 7168,
+        "TEXDIR": 1968,
+        "SPRDEF": 5360,
+        "SOUNDS": 5527,
+        "STRINGS": 3446,
+        "UIDIR": 476,
+        "ANIMS": 48,
+        "PATCHDIR": 2156,
+        "FLATS": 53296,
+        "TEXDATA": 346736,
+        "PATCHDATA": 705952,
+        "DEMOS": 4
+      }
+    },
+    {
+      "label": "half-walls-sprite-width-no-help",
+      "raw_bytes": 1189968,
+      "sha256": "9c37adf3b6d2932f60addd4b25be3d2a6ed33569e49cd8096b5fc192f2c3498d",
+      "config_changes": {
+        "base": 1,
+        "mips": 1,
+        "xshift": 1,
+        "ui_exclude": [
+          "HELP1"
+        ]
+      },
+      "options": {},
+      "all_raw_container_bytes": 1199344,
+      "all_raw_page_count": 582,
+      "all_raw_container_sha256": "9febb635d1c66b1409938c444481e77a72a16a36ff4ee79a2d21c651ca40ae5f",
+      "all_raw_roundtrip_verified": true,
+      "all_raw_container_headroom_bytes": 50653,
+      "sections": {
+        "PALETTE": 7168,
+        "TEXDIR": 1968,
+        "SPRDEF": 5360,
+        "SOUNDS": 5527,
+        "STRINGS": 3446,
+        "UIDIR": 476,
+        "ANIMS": 48,
+        "PATCHDIR": 2152,
+        "FLATS": 53296,
+        "TEXDATA": 346736,
+        "PATCHDATA": 639056,
+        "DEMOS": 4
+      }
+    },
+    {
+      "label": "half-walls-sprite-width-no-help-credit",
+      "raw_bytes": 1123072,
+      "sha256": "2b2d9eccd67c766165c5c063a10c36ca26288b54c8d30c94673c2cfb732e1d59",
+      "config_changes": {
+        "base": 1,
+        "mips": 1,
+        "xshift": 1,
+        "ui_exclude": [
+          "HELP1",
+          "CREDIT"
+        ]
+      },
+      "options": {},
+      "all_raw_container_bytes": 1131920,
+      "all_raw_page_count": 549,
+      "all_raw_container_sha256": "fb001c2273c6375d819472a2e54a176a04b88b6e603d8a7e7bafa91105554c65",
+      "all_raw_roundtrip_verified": true,
+      "all_raw_container_headroom_bytes": 118077,
+      "sections": {
+        "PALETTE": 7168,
+        "TEXDIR": 1968,
+        "SPRDEF": 5360,
+        "SOUNDS": 5527,
+        "STRINGS": 3446,
+        "UIDIR": 476,
+        "ANIMS": 48,
+        "PATCHDIR": 2148,
+        "FLATS": 53296,
+        "TEXDATA": 346736,
+        "PATCHDATA": 572160,
+        "DEMOS": 4
+      }
+    },
+    {
+      "label": "half-walls-sprite-width-monster-rows",
+      "raw_bytes": 1192976,
+      "sha256": "54fa3f012d249e88d427e65c3adeeb088eebbed5f70829e13f263b7a637ea28e",
+      "config_changes": {
+        "base": 1,
+        "mips": 1,
+        "xshift": 1
+      },
+      "options": {
+        "half_monsters": true
+      },
+      "all_raw_container_bytes": 1202368,
+      "all_raw_page_count": 583,
+      "all_raw_container_sha256": "35a1852e46286fcc010884b1e98cdd7e2fd693b09db00bbea5b25d48349029c0",
+      "all_raw_roundtrip_verified": true,
+      "all_raw_container_headroom_bytes": 47629,
+      "sections": {
+        "PALETTE": 7168,
+        "TEXDIR": 1968,
+        "SPRDEF": 5360,
+        "SOUNDS": 5527,
+        "STRINGS": 3446,
+        "UIDIR": 476,
+        "ANIMS": 48,
+        "PATCHDIR": 2156,
+        "FLATS": 53296,
+        "TEXDATA": 346736,
+        "PATCHDATA": 642064,
+        "DEMOS": 4
+      }
+    }
+  ]
+}

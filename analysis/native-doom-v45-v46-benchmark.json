@@ -1,0 +1,86 @@
+{
+  "status": "USER-REPORTED fixed-tic hardware results; one run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "single_tic_per_frame": true,
+  "raw_photos_in_repository": false,
+  "transcription": "Revision, measured count, D00E, mean frame/decode/present times, final tic and frame hash manually read from original photographs and enlarged crops. Min/max timings are deliberately not transcribed in this mean-only result.",
+  "procedure": "docs/BENCHMARK_V45_V46.ja.md",
+  "user_observation": "V46 was clearly faster; the user corrected C46 to V46.",
+  "v45": {
+    "firmware_sha256": "34392ff5033277995c376e26c369642cc0bb055b727a7c1af882e36eec77da80",
+    "photo_sha256": "725453d73a80800f96fe9ced75bafcd2b9be142c6f0126df99d0b35680548441",
+    "profile_rows_hex_selected": {
+      "1": "0000002D",
+      "2": "0000001E",
+      "3": "0000D00E",
+      "4": "0000047B",
+      "7": "00000360",
+      "10": "00000063",
+      "13": "00000028",
+      "14": "EBC8D404"
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "EBC8D404",
+    "frame": {
+      "mean": 1147
+    },
+    "decode": {
+      "mean": 864
+    },
+    "present": {
+      "mean": 99
+    },
+    "remaining_mean_frame_ms_excluding_decode_and_present": 184,
+    "reciprocal_mean_frame_rate_hz": 0.87184,
+    "normal_gameplay_or_long_term_stability_verified": false
+  },
+  "v46": {
+    "firmware_sha256": "4aecfeeb8d7feeb9759e14b6f5280ce8c43322c9227b724daca1ec79b28fa423",
+    "photo_sha256": "af42ac3fd23eefc88be565d5585e8c1bffa3490d63c6176214e3fff897cd84a1",
+    "profile_rows_hex_selected": {
+      "1": "0000002E",
+      "2": "0000001E",
+      "3": "0000D00E",
+      "4": "000000CD",
+      "7": "00000000",
+      "10": "00000063",
+      "13": "00000028",
+      "14": "EBC8D404"
+    },
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "EBC8D404",
+    "frame": {
+      "mean": 205
+    },
+    "decode": {
+      "mean": 0
+    },
+    "present": {
+      "mean": 99
+    },
+    "remaining_mean_frame_ms_excluding_decode_and_present": 106,
+    "reciprocal_mean_frame_rate_hz": 4.878049,
+    "normal_gameplay_or_long_term_stability_verified": false
+  },
+  "comparison": {
+    "v45_to_v46_mean_frame_ms_reduction": 942,
+    "v45_to_v46_mean_frame_time_reduction_percent": 82.127289,
+    "v45_to_v46_reciprocal_frame_rate_ratio": 5.595122,
+    "v44_to_v46_reciprocal_frame_rate_ratio": 3.053659,
+    "v44_to_v46_has_asset_detail_and_storage_changes": true
+  },
+  "interpretation": [
+    "Both variants completed 30 measured frames at tic 40 with the expected EBC8D404 frame sequence. The comparison retains the same reduced-detail assets.",
+    "Mean frame time fell 1147 to 205 ms, an 82.13% time reduction and about 5.60 times the reciprocal mean rate. Mean DEFLATE time fell 864 to zero; presentation stayed 99 ms.",
+    "V46 is about 3.05 times the reciprocal mean rate of the previous V44 result (626 ms). This cross-version comparison includes reduced asset detail as well as storage changes and is not an isolated codec comparison.",
+    "V45 is slower than V44. Their assets, pack/page layout and forced-raw page selection differ; the data does not show that reducing detail alone improves the compressed path.",
+    "The remaining 205 ms consists of 99 ms measured presentation and about 106 ms outside it. The latter includes simulation, rendering, raw asset reads, copies and other work; it is not a pure renderer measurement.",
+    "The reciprocal rate of about 4.88 frames/s describes this fixed-tic start-room benchmark, not measured normal-play FPS. Controls, movement, other scenes and long-term stability require hardware tests.",
+    "No CPU/PLL/SFC or LCD divider change was requested between these two builds; their actual frequencies remain unmeasured.",
+    "The current indexed present loop waits for final DMA completion before returning, so rendering the next frame does not overlap the prior frame presentation. Using released SRAM for a second indexed surface and cooperative DMA service is a candidate, not implemented or measured here."
+  ]
+}

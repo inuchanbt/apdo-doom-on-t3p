@@ -38,10 +38,22 @@ def main():
     parser.add_argument('--host-test', action='store_true')
     parser.add_argument('--host-compiler', type=Path, default=Path('D:/doom_on_km003c/tools/llvm-mingw-20261020-ucrt-x86_64/bin/clang.exe'))
     parser.add_argument('--opt', choices=['O2', 'Oz'], default='O2')
+    parser.add_argument('--game-page-bytes', type=int, choices=[2048,4096], default=4096)
+    parser.add_argument('--raw-game-only', action='store_true', help='Cache-free reader; accepts only all-raw game pages')
+    parser.add_argument('--weapon-view-y', action='store_true', help='Keep original DOOM weapon Y scale in the square viewport')
+    parser.add_argument('--fixed-tic-benchmark', action='store_true', help='Host: native-style indexed surface and exactly one game tic per frame')
+    parser.add_argument('--present-mode', choices=['serial','overlap'], help='Host: shared double-buffer presenter with deferred DMA reads')
+    parser.add_argument('--seamless-view', action='store_true', help='Host: fill the message band with the 3D view')
     parser.add_argument('--jobs', type=int, default=min(os.cpu_count() or 4, 8))
     args = parser.parse_args()
     if not 1 <= args.jobs <= 16:
         parser.error('--jobs must be between 1 and 16')
+    if args.fixed_tic_benchmark and not args.host_test:
+        parser.error('--fixed-tic-benchmark is for the host harness only')
+    if args.present_mode and not (args.host_test and args.raw_game_only):
+        parser.error('--present-mode requires --host-test --raw-game-only')
+    if args.seamless_view and not args.present_mode:
+        parser.error('--seamless-view requires --present-mode')
     toolchain = args.toolchain.resolve()
     output = (args.output or ROOT/('artifacts/host-engine' if args.host_test else 'artifacts/pi32v2-engine')).resolve()
     compiler = args.host_compiler.resolve() if args.host_test else toolchain / 'bin/clang.exe'
@@ -61,8 +73,12 @@ def main():
     sources += [ROOT/'native/doom_bridge.c', ROOT/'native/square_view.c']
     sources += [ROOT/'native/t3p_input.c', ROOT/'native/t3p_sensors.c', ROOT/'native/t3p_game.c', ROOT/'native/t3p_display.c',
                 ROOT/'vendor/tinf/tinflate.c']
+    if args.raw_game_only:
+        sources.remove(ROOT/'vendor/tinf/tinflate.c')
     if args.host_test:
-        sources += [ROOT/'native/host_harness.c']
+        sources += [ROOT/'native/host_harness.c', ROOT/'tests/host_play_probe.c']
+    if args.present_mode:
+        sources += [ROOT/'native/t3p_present.c']
     includes = ['engine/stub/include', 'engine', 'port/data', 'port/render', 'port/obj',
                 'port/math', 'platform', 'port/game', 'port/ovl', 'gen']
     flags = ['-'+args.opt, '-std=gnu11', '-ffreestanding', '-fno-common',
@@ -72,6 +88,20 @@ def main():
     for inc in includes:
         flags += ['-I', str(SRC/inc)]
     flags += ['-I', str(ROOT/'vendor/tinf')]
+    flags += [f'-DT3P_GAME_PAGE={args.game_page_bytes}']
+    if args.game_page_bytes==2048 or args.raw_game_only:
+        flags += ['-DT3P_PROFILE_HOT']
+    if args.raw_game_only:
+        flags += ['-DT3P_GAME_RAW_ONLY','-DT3P_GAME_SLOTS=0']
+    if args.fixed_tic_benchmark:
+        flags += ['-DT3P_BENCH_FIXED_TICS']
+    if args.fixed_tic_benchmark or args.present_mode:
+        flags += ['-DT3P_INDEXED_FRAME']
+    if args.present_mode:
+        flags += ['-DT3P_FRAME_PRESENTER']
+        if args.present_mode=='overlap':flags += ['-DT3P_PRESENT_OVERLAP']
+    if args.seamless_view:
+        flags += ['-DT3P_SEAMLESS_VIEW']
     if not args.host_test:
         flags = ['-target','pi32v2','-mcpu=r3','-integrated-as','-mllvm','-pi32v2-large-program=true']+flags
         flags += ['-I',str(toolchain/'include/compiler'),'-I',str(toolchain/'pi32v2-include')]
@@ -81,6 +111,8 @@ def main():
         # tinf's input/buffer error checks remain enabled; its internal invariant
         # asserts need no target libc abort handler in this freestanding build.
         extra = ['-DNDEBUG'] if source.name == 'tinflate.c' else []
+        if args.weapon_view_y and source == SRC/'engine/r_things.c':
+            extra += ['-DT3P_WEAPON_VIEW_Y']
         if args.host_test and source.name not in {'host_harness.c','tinflate.c'}:
             extra += ['-U_WIN32']
         result = subprocess.run([str(compiler), *flags, *extra, '-c', str(source), '-o', str(obj)],

@@ -1,0 +1,311 @@
+{
+  "status": "USER-REPORTED HARDWARE RESULTS; one fixed 30-frame run per variant",
+  "reported_date": "2026-11-05",
+  "warmup_frames": 10,
+  "measured_frames": 30,
+  "single_tic_per_frame": true,
+  "input_enabled": false,
+  "freeze_when_complete": true,
+  "units": "ms; display hexadecimal; firmware means truncated to integer milliseconds",
+  "raw_photos_in_repository": false,
+  "transcription": "User photographs identified by revision 0x27/0x28; magnified and manually transcribed. Photo pixel data is not redistributed.",
+  "v39": {
+    "firmware_sha256": "2e3e904f5c145c9379c8f0fbddd5f2c079a753570cfc47fea7409bbbd82247a8",
+    "photo_sha256": "db28135743cff89f1fc4224423b74a68992366dbad3940cf7bbb41d9af7ca446",
+    "photo_dimensions": [
+      1276,
+      1702
+    ],
+    "profile_rows_hex": [
+      "00000027",
+      "0000001E",
+      "0000D00E",
+      "0000029A",
+      "0000027F",
+      "000002D0",
+      "000001A9",
+      "00000192",
+      "000001E0",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "05440143",
+      "0001003C",
+      "05350141",
+      "0001003C",
+      "05300136",
+      "0001003C",
+      "05380133",
+      "0001003C",
+      "0537012D",
+      "0001003C",
+      "05460123",
+      "0001003C",
+      "02010118",
+      "0001003C",
+      "02270117",
+      "0001003C"
+    ],
+    "top_pages": [
+      {
+        "rank": 1,
+        "page_hex": "0x544",
+        "codec": "DEFLATE",
+        "total_decode_ms": 323,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.767,
+        "stored_bytes": 1011,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 2,
+        "page_hex": "0x535",
+        "codec": "DEFLATE",
+        "total_decode_ms": 321,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.7,
+        "stored_bytes": 1136,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 3,
+        "page_hex": "0x530",
+        "codec": "DEFLATE",
+        "total_decode_ms": 310,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.333,
+        "stored_bytes": 1101,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 4,
+        "page_hex": "0x538",
+        "codec": "DEFLATE",
+        "total_decode_ms": 307,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.233,
+        "stored_bytes": 1103,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 5,
+        "page_hex": "0x537",
+        "codec": "DEFLATE",
+        "total_decode_ms": 301,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.033,
+        "stored_bytes": 1073,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 6,
+        "page_hex": "0x546",
+        "codec": "DEFLATE",
+        "total_decode_ms": 291,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.7,
+        "stored_bytes": 966,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 7,
+        "page_hex": "0x201",
+        "codec": "DEFLATE",
+        "total_decode_ms": 280,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.333,
+        "stored_bytes": 461,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 8,
+        "page_hex": "0x227",
+        "codec": "DEFLATE",
+        "total_decode_ms": 279,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.3,
+        "stored_bytes": 874,
+        "raw_bytes": 2048
+      }
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "decoder_object_sha256": "f9576c090c5a1cb1b3d599bfe4281850a3493282c593344513ca2992f08e1673",
+    "frame": {
+      "mean": 666,
+      "minimum": 639,
+      "maximum": 720
+    },
+    "decode": {
+      "mean": 425,
+      "minimum": 402,
+      "maximum": 480
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "top_eight_total_ms": 2412,
+    "approx_fps_from_mean": 1.502
+  },
+  "v40": {
+    "firmware_sha256": "97260c1361dc078ef539028a8f2c12d0b12261fb8e44e0664b9c7b7c32617cf4",
+    "photo_sha256": "1822b25bc9c11f1a7603e68ae99a6dc32ebc5efaca70a6f35967e93146297f5a",
+    "photo_dimensions": [
+      1276,
+      1702
+    ],
+    "profile_rows_hex": [
+      "00000028",
+      "0000001E",
+      "0000D00E",
+      "0000029C",
+      "00000281",
+      "000002DF",
+      "000001AE",
+      "00000192",
+      "000001CA",
+      "00000053",
+      "00000053",
+      "00000054",
+      "00000028",
+      "C269CBCE",
+      "05350147",
+      "0001003C",
+      "0544013E",
+      "0001003C",
+      "05380139",
+      "0001003C",
+      "05300136",
+      "0001003C",
+      "05370131",
+      "0001003C",
+      "05460124",
+      "0001003C",
+      "02010116",
+      "0001003C",
+      "02270116",
+      "0001003C"
+    ],
+    "top_pages": [
+      {
+        "rank": 1,
+        "page_hex": "0x535",
+        "codec": "DEFLATE",
+        "total_decode_ms": 327,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.9,
+        "stored_bytes": 1136,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 2,
+        "page_hex": "0x544",
+        "codec": "DEFLATE",
+        "total_decode_ms": 318,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.6,
+        "stored_bytes": 1011,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 3,
+        "page_hex": "0x538",
+        "codec": "DEFLATE",
+        "total_decode_ms": 313,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.433,
+        "stored_bytes": 1103,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 4,
+        "page_hex": "0x530",
+        "codec": "DEFLATE",
+        "total_decode_ms": 310,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.333,
+        "stored_bytes": 1101,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 5,
+        "page_hex": "0x537",
+        "codec": "DEFLATE",
+        "total_decode_ms": 305,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 10.167,
+        "stored_bytes": 1073,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 6,
+        "page_hex": "0x546",
+        "codec": "DEFLATE",
+        "total_decode_ms": 292,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.733,
+        "stored_bytes": 966,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 7,
+        "page_hex": "0x201",
+        "codec": "DEFLATE",
+        "total_decode_ms": 278,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.267,
+        "stored_bytes": 461,
+        "raw_bytes": 2048
+      },
+      {
+        "rank": 8,
+        "page_hex": "0x227",
+        "codec": "DEFLATE",
+        "total_decode_ms": 278,
+        "decode_calls": 60,
+        "ms_per_measured_frame": 9.267,
+        "stored_bytes": 874,
+        "raw_bytes": 2048
+      }
+    ],
+    "final_game_tic": 40,
+    "indexed_frame_sequence_hash": "C269CBCE",
+    "decoder_object_sha256": "f9576c090c5a1cb1b3d599bfe4281850a3493282c593344513ca2992f08e1673",
+    "frame": {
+      "mean": 668,
+      "minimum": 641,
+      "maximum": 735
+    },
+    "decode": {
+      "mean": 430,
+      "minimum": 402,
+      "maximum": 458
+    },
+    "present": {
+      "mean": 83,
+      "minimum": 83,
+      "maximum": 84
+    },
+    "top_eight_total_ms": 2421,
+    "approx_fps_from_mean": 1.497
+  },
+  "comparison": {
+    "v40_minus_v39_mean_frame_ms": 2,
+    "v40_minus_v39_mean_decode_ms": 5,
+    "v40_mean_frame_change_percent": 0.3,
+    "v40_mean_decode_change_percent": 1.176
+  },
+  "interpretation": [
+    "Both variants completed 30 measured frames at tic 40 with FNV-1a fingerprint C269CBCE; no observed mismatch in this workload.",
+    "Flash V39 averaged 666 ms/frame and 425 ms decode; SRAM-hot-loop V40 averaged 668 ms/frame and 430 ms decode. Presentation stayed 83 ms.",
+    "No demonstrated speed advantage from moving these two hot loops (446 code bytes) into SRAM. The 2 ms frame difference is too small, and single runs do not establish a regression distribution.",
+    "This does not rule out instruction-fetch bottlenecks in remaining Flash-resident tree construction, bit-reader helpers or the renderer, and does not prove any cache disabled or thrashing.",
+    "Compared with the older V37 run (668 ms/frame, 428 ms decode), V39 is essentially unchanged. Code organization and addresses also changed, so the prefix-continuation algorithm cannot be assessed in isolation.",
+    "Decode remains about 64 percent of frame time. Top-eight page contributions are 80.4/80.7 ms per frame; this still favors investigating changes across the decoder rather than individual pages.",
+    "Maintain V30 as the normal-play baseline; V39/V40 are fixed-tic diagnostic images with disabled input and an intentional final stop."
+  ]
+}

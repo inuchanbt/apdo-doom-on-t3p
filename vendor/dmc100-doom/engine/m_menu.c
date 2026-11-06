@@ -70,6 +70,16 @@
 #include "r_screen.h"
 #include "r_strip.h"
 
+#ifdef T3P_UAC_MONITOR
+#include "t3p_baro.h"
+static boolean uac_monitor_open;
+
+static void M_UacMonitor(int choice)
+{
+    (void)choice;
+    uac_monitor_open = true;
+}
+#endif
 
 extern boolean		message_dontfuckwithme;
 
@@ -195,6 +205,9 @@ enum
     loadgame,
     savegame,
     quitdoom,
+#ifdef T3P_UAC_MONITOR
+    uacmonitor,
+#endif
     main_end
 } main_e;
 
@@ -204,7 +217,10 @@ static const menuitem_t MainMenu[]=
     {1,DMC_UI_M_OPTION,M_Options},
     {1,DMC_UI_M_LOADG,M_LoadGame},
     {1,DMC_UI_M_SAVEG,M_SaveGame},
-    {1,DMC_UI_M_QUITG,M_QuitDOOM}
+    {1,DMC_UI_M_QUITG,M_QuitDOOM},
+#ifdef T3P_UAC_MONITOR
+    {1,-1,M_UacMonitor},
+#endif
 };
 
 
@@ -404,14 +420,81 @@ static void M_WriteString(int x, int y, const char *s)
 
 
 
+#ifdef T3P_UAC_MONITOR
+extern const uint8_t font8x8[95][8];
+
+static void M_WriteUacText(int x, int y, const char *text)
+{
+    enum { SCALE = 2, SIDE = 8 * SCALE, WHITE_INDEX = 4 };
+    /* Two columns per font pixel preserve strokes when the square UI drops columns. */
+    for (; *text; ++text, x += SIDE) {
+        unsigned c = (unsigned char)*text;
+        if (c == ' ')
+            continue;
+        if (r_bandmode == BAND_HASH) {
+            uint32_t key = 0x80000000u | (uint32_t)c << 19
+                         | (uint32_t)x << 9 | (uint32_t)y;
+            R_ScreenMark(x, x + SIDE - 1, y, y + SIDE - 1, key);
+        } else if (r_bandmode == BAND_COMPOSE) {
+            const uint8_t *glyph = font8x8[c - 32u];
+            int left = x > r_bandwin.cx0 ? x : r_bandwin.cx0;
+            int top = y > r_bandwin.cy0 ? y : r_bandwin.cy0;
+            for (int px = left; px < x + SIDE && px <= r_bandwin.cx1; ++px) {
+                uint8_t *column = r_bandwin.buf + (px - r_bandwin.x0) * r_bandwin.h;
+                unsigned mask = 0x80u >> ((px - x) / SCALE);
+                for (int py = top; py < y + SIDE && py <= r_bandwin.cy1; ++py)
+                    if (glyph[(py - y) / SCALE] & mask)
+                        column[py - r_bandwin.y0] = WHITE_INDEX;
+            }
+        }
+    }
+}
+#endif
+
 //
 // M_DrawMainMenu
 //
 static void M_DrawMainMenu(void)
 {
     V_DrawPatchDirect(94, 2, V_UIPatch(DMC_UI_M_DOOM));
+#ifdef T3P_UAC_MONITOR
+    M_WriteUacText(menus[MENU_MAIN].x, menus[MENU_MAIN].y + uacmonitor * LINEHEIGHT,
+                   "UAC MONITOR");
+#endif
 }
 
+#ifdef T3P_UAC_MONITOR
+static void M_DrawUacMonitor(void)
+{
+    const struct t3p_uac_reading *reading = km_uac_reading();
+    char value[24];
+    const int x = 48;
+
+    M_WriteUacText(x, 22, "UAC MONITOR");
+    if (reading->status == T3P_BARO_READY) {
+        unsigned pa = (unsigned)reading->pressure_pa;
+        int dm = reading->altitude_dm;
+        unsigned magnitude = (unsigned)(dm < 0 ? -dm : dm);
+
+        M_WriteUacText(x, 50, "PRESSURE");
+        plat_fmt(value, sizeof(value), "%u.%02u hPa", pa / 100, pa % 100);
+        M_WriteUacText(x, 68, value);
+        M_WriteUacText(x, 90, "ALT. FROM START");
+        plat_fmt(value, sizeof(value), "%c%u.%u m", dm < 0 ? '-' : '+',
+                 magnitude / 10, magnitude % 10);
+        M_WriteUacText(x, 108, value);
+    } else if (reading->status == T3P_BARO_WAITING) {
+        M_WriteUacText(x, 68, "SAMPLING...");
+    } else if (reading->status == T3P_BARO_UNSUPPORTED) {
+        M_WriteUacText(x, 68, "SENSOR ID ERROR");
+    } else {
+        M_WriteUacText(x, 68, "READ ERROR");
+    }
+    if (reading->upper_deck)
+        M_WriteUacText(x, 130, "UPPER DECK FOUND");
+    M_WriteUacText(x, 154, "RIGHT: BACK");
+}
+#endif
 
 
 
@@ -852,6 +935,15 @@ boolean M_OvlResponder (event_t* ev)
     if (key == -1)
 	return false;
 
+#ifdef T3P_UAC_MONITOR
+    if (uac_monitor_open)
+    {
+        if (key == key_menu_activate || key == key_menu_back)
+            uac_monitor_open = false;
+        return true;
+    }
+#endif
+
     // Take care of any messages that need input
     if (messageToPrint)
     {
@@ -1054,6 +1146,14 @@ static void M_DrawPage (void)
     int			parts;
     int			k;
 
+#ifdef T3P_UAC_MONITOR
+    if (uac_monitor_open)
+    {
+        M_DrawUacMonitor();
+        return;
+    }
+#endif
+
     // Horiz. & Vertically center string and print it.
     if (messageToPrint)
     {
@@ -1129,6 +1229,9 @@ void M_OvlDrawer (void)
 //
 static void M_ClearMenus (void)
 {
+#ifdef T3P_UAC_MONITOR
+    uac_monitor_open = false;
+#endif
     menuactive = 0;
     fe.flags &= ~FE_HASHED;
     fe.flags |= FE_PANEL;

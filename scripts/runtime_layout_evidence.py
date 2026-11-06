@@ -2,7 +2,7 @@
 import struct
 
 
-def inspect_layout(path,driver_flash_reserve=98304,driver_ram_reserve=32768):
+def inspect_layout(path,driver_flash_reserve=98304,driver_ram_reserve=32768,tinf_hot_sram=False):
     data=path.read_bytes()
     if data[:6]!=b'\x7fELF\x01\x01' or struct.unpack_from('<H',data,18)[0]!=0xf1:
         raise ValueError('Wrong ELF ABI')
@@ -75,6 +75,16 @@ def inspect_layout(path,driver_flash_reserve=98304,driver_ram_reserve=32768):
         cursor+=6
     assert code[cursor:]==bytes.fromhex('f79f')
     assert function_sizes['t3p_runtime_memory_init']>0
+    hot_functions={}
+    if tinf_hot_sram:
+        # The two function bodies must be in initialized SRAM, not BSS or a
+        # discarded/orphan Flash section. flatten() audits the load image too.
+        assert sections['.data'][2]&4  # SHF_EXECINSTR
+        for name in ('tinf_decode_symbol','tinf_inflate_block_data'):
+            begin=symbols[name];size=function_sizes[name]
+            assert size>0 and begin%4==0
+            assert symbols['__runtime_data_start']<=begin<begin+size<=symbols['__runtime_data_end']
+            hot_functions[name]=dict(address=hex(begin),bytes=size)
     return dict(status='OFFLINE SIZE/PLACEMENT CHECKS PASS; not a boot or hardware test',
                 actual_static_ram_bytes=actual_ram,
                 explicit_driver_ram_budget_bytes=driver_ram_reserve,explicit_stack_budget_bytes=16384,
@@ -88,4 +98,5 @@ def inspect_layout(path,driver_flash_reserve=98304,driver_ram_reserve=32768):
                 data_source_word_aligned=True,
                 linked_cli_stack_parameter_save_and_call_targets_checked=True,
                 ram_sections=[dict(begin=hex(a),end=hex(b),name=n) for a,b,n in ram_sections],
+                tinf_hot_sram_functions=hot_functions,
                 device_execution=False,complete_bsp=False)

@@ -27,16 +27,43 @@
 
 #include <assert.h>
 #include <limits.h>
+#ifdef T3P_TINF_PROFILE
+#include "t3p_tinf_profile.h"
+#endif
 
 #if defined(UINT_MAX) && (UINT_MAX) < 0xFFFFFFFFUL
 #  error "tinf requires unsigned int to be at least 32-bit"
+#endif
+
+/* T3P modification: configurable 7/8-bit prefix tables. At most one byte is
+ * peeked so no complete prefetched byte survives a stored-block boundary. */
+#ifdef T3P_TINF_PREFIX
+#ifndef T3P_TINF_PREFIX_BITS
+#define T3P_TINF_PREFIX_BITS 7
+#endif
+#if T3P_TINF_PREFIX_BITS < 7 || T3P_TINF_PREFIX_BITS > 8
+#error "T3P prefix lookup supports 7 or 8 bits"
+#endif
+#define T3P_TINF_PREFIX_SIZE (1u << T3P_TINF_PREFIX_BITS)
+#endif
+
+#if defined(T3P_TINF_PREFIX_CONTINUE) && (!defined(T3P_TINF_PREFIX) || !defined(T3P_TINF_LOCAL_BITS))
+#error "Prefix continuation requires the prefix table and local bit reader"
+#endif
+
+/* V39/V40 compile identical hot-loop objects. The linker places this
+ * section in Flash for V39 or initialized ordinary SRAM for V40. */
+#ifdef T3P_TINF_HOT_SECTION
+#define T3P_TINF_HOT __attribute__((section(".tinf_hot"), noinline, aligned(4)))
+#else
+#define T3P_TINF_HOT
 #endif
 
 /* -- Internal data structures -- */
 
 struct tinf_tree {
 #ifdef T3P_TINF_PREFIX
-    unsigned short fast[128];
+    unsigned short fast[T3P_TINF_PREFIX_SIZE];
 #endif
 	unsigned short counts[16]; /* Number of codes with a given length */
 	unsigned short symbols[288]; /* Symbols sorted by code */
@@ -71,20 +98,35 @@ static unsigned int read_le16(const unsigned char *p)
 static void tinf_build_fast(struct tinf_tree *t)
 {
     unsigned code=0, base=0;
-    for(unsigned i=0;i<128;i++)t->fast[i]=0;
-    for(unsigned length=1;length<=7;length++) {
+    for(unsigned i=0;i<T3P_TINF_PREFIX_SIZE;i++)t->fast[i]=0;
+    for(unsigned length=1;length<=T3P_TINF_PREFIX_BITS;length++) {
         for(unsigned i=0;i<t->counts[length];i++) {
             unsigned bits=code+i, reversed=0;
             for(unsigned n=0;n<length;n++) {
                 reversed=(reversed<<1)|(bits&1u);
                 bits>>=1;
             }
-            for(unsigned at=reversed;at<128;at+=1u<<length)
+            for(unsigned at=reversed;at<T3P_TINF_PREFIX_SIZE;at+=1u<<length)
                 t->fast[at]=(length<<9)|t->symbols[base+i];
         }
         base+=t->counts[length];
         code=(code+t->counts[length])<<1;
     }
+#ifdef T3P_TINF_PREFIX_CONTINUE
+    /* A missing prefix is an internal node, not a reason to reread its
+     * bits. Store its residual tree offset; counts[0] (unused by decoding)
+     * holds the common symbol base after the prefix depth. */
+    unsigned first=code>>1, reversed=0;
+    for(unsigned n=0;n<T3P_TINF_PREFIX_BITS;n++)
+        reversed=(reversed<<1)|((first>>n)&1u);
+    for(unsigned offset=0;first+offset<T3P_TINF_PREFIX_SIZE;offset++) {
+        t->fast[reversed]=0x8000u|offset;
+        unsigned step=T3P_TINF_PREFIX_SIZE>>1;
+        while(step && (reversed&step)) { reversed^=step; step>>=1; }
+        reversed^=step;
+    }
+    t->counts[0]=base;
+#endif
 }
 #endif
 
@@ -251,12 +293,22 @@ static unsigned int tinf_getbits(struct tinf_data *d, int num)
 /* Read a num bit value from stream and add base */
 static unsigned int tinf_getbits_base(struct tinf_data *d, int num, int base)
 {
-	return base + (num ? tinf_getbits(d, num) : 0);
+#ifdef T3P_TINF_PROFILE
+    uint32_t sample=t3p_tinf_sample_begin(TINF_P_EXTRA_CALLS);
+#endif
+    unsigned value=base + (num ? tinf_getbits(d, num) : 0);
+#ifdef T3P_TINF_PROFILE
+    t3p_tinf_sample_end(TINF_P_EXTRA_CALLS,sample);
+#endif
+    return value;
 }
 
 /* Given a data stream and a tree, decode a symbol */
-static int tinf_decode_symbol(struct tinf_data *d, const struct tinf_tree *t)
+static T3P_TINF_HOT int tinf_decode_symbol(struct tinf_data *d, const struct tinf_tree *t)
 {
+#ifdef T3P_TINF_PROFILE
+    uint32_t sample=t3p_tinf_sample_begin(TINF_P_SYMBOL_CALLS);
+#endif
 	int base = 0, offs = 0;
 	int len;
 #ifdef T3P_TINF_LOCAL_BITS
@@ -267,10 +319,26 @@ static int tinf_decode_symbol(struct tinf_data *d, const struct tinf_tree *t)
     /* Peek at the next byte, committing it only if this code consumes it.
      * Never retain a whole prefetched byte across a stored-block boundary. */
     unsigned peek=tag;
-    if(bitcount<7 && source!=d->source_end)
+    if(bitcount<T3P_TINF_PREFIX_BITS && source!=d->source_end)
         peek|=(unsigned)*source<<bitcount;
-    unsigned entry=t->fast[peek&127u];
+    unsigned entry=t->fast[peek&(T3P_TINF_PREFIX_SIZE-1u)];
     unsigned used=entry>>9;
+#ifdef T3P_TINF_PREFIX_CONTINUE
+    if(entry&0x8000u) {
+        if(bitcount>=T3P_TINF_PREFIX_BITS || source!=d->source_end) {
+            if(bitcount<T3P_TINF_PREFIX_BITS) {
+                tag|=(unsigned)*source++<<bitcount;
+                bitcount+=8;
+            }
+            tag>>=T3P_TINF_PREFIX_BITS;
+            bitcount-=T3P_TINF_PREFIX_BITS;
+            base=t->counts[0];
+            offs=entry&0x7fffu;
+            len=T3P_TINF_PREFIX_BITS+1;
+            goto continue_code;
+        }
+    } else
+#endif
     if(used && (used<=(unsigned)bitcount || source!=d->source_end)) {
         if(used>(unsigned)bitcount) {
             tag|=(unsigned)*source++<<bitcount;
@@ -279,6 +347,9 @@ static int tinf_decode_symbol(struct tinf_data *d, const struct tinf_tree *t)
         d->tag=tag>>used;
         d->bitcount=bitcount-used;
         d->source=source;
+#ifdef T3P_TINF_PROFILE
+        t3p_tinf_sample_end(TINF_P_SYMBOL_CALLS,sample);
+#endif
         return entry&511u;
     }
 #endif
@@ -298,6 +369,9 @@ static int tinf_decode_symbol(struct tinf_data *d, const struct tinf_tree *t)
 	 * of offs and add one more bit to it.
 	 */
 	for (len = 1; ; ++len) {
+#ifdef T3P_TINF_PREFIX_CONTINUE
+continue_code:
+#endif
 #ifdef T3P_TINF_LOCAL_BITS
 		if (!bitcount) {
 			if (source != d->source_end) {
@@ -332,6 +406,9 @@ static int tinf_decode_symbol(struct tinf_data *d, const struct tinf_tree *t)
 #endif
 	assert(base + offs >= 0 && base + offs < 288);
 
+#ifdef T3P_TINF_PROFILE
+    t3p_tinf_sample_end(TINF_P_SYMBOL_CALLS,sample);
+#endif
 	return t->symbols[base + offs];
 }
 
@@ -463,7 +540,7 @@ static int tinf_decode_trees(struct tinf_data *d, struct tinf_tree *lt,
 /* -- Block inflate functions -- */
 
 /* Given a stream and two trees, inflate a block of data */
-static int tinf_inflate_block_data(struct tinf_data *d, struct tinf_tree *lt,
+static T3P_TINF_HOT int tinf_inflate_block_data(struct tinf_data *d, struct tinf_tree *lt,
                                    struct tinf_tree *dt)
 {
 	/* Extra bits and base tables for length codes */
@@ -493,6 +570,37 @@ static int tinf_inflate_block_data(struct tinf_data *d, struct tinf_tree *lt,
 	};
 
 	for (;;) {
+#ifdef T3P_TINF_LITERAL_RUN
+#if !defined(T3P_TINF_LOCAL_BITS) || !defined(T3P_TINF_PREFIX) || defined(T3P_TINF_PROFILE)
+#error Literal runs require local bits and prefix lookup, without helper profiling
+#endif
+        /* Keep the bit cursor and output pointer local across short literals.
+         * A peek never commits the following byte unless this code uses it:
+         * stored-block boundaries must retain the original byte alignment. */
+        unsigned tag=d->tag;
+        int bitcount=d->bitcount;
+        const unsigned char *source=d->source;
+        unsigned char *output=d->dest;
+        while(output!=d->dest_end && !d->overflow) {
+            unsigned peek=tag;
+            if(bitcount<T3P_TINF_PREFIX_BITS && source!=d->source_end)
+                peek|=(unsigned)*source<<bitcount;
+            unsigned entry=lt->fast[peek&(T3P_TINF_PREFIX_SIZE-1u)];
+            unsigned used=entry>>9;
+            if((entry&0x8000u) || !used || (entry&511u)>=256u ||
+               (used>(unsigned)bitcount && source==d->source_end))break;
+            if(used>(unsigned)bitcount) {
+                tag|=(unsigned)*source++<<bitcount;
+                bitcount+=8;
+            }
+            tag>>=used;
+            bitcount-=used;
+            *output++=(unsigned char)entry;
+        }
+        d->tag=tag;d->bitcount=bitcount;d->source=source;d->dest=output;
+        /* Long literals, length/distance pairs, EOB and error handling use
+         * the unchanged bounded decoder after publishing the local cursor. */
+#endif
 		int sym = tinf_decode_symbol(d, lt);
 
 		/* Check for overflow in bit reader */
@@ -620,25 +728,42 @@ static int tinf_inflate_uncompressed_block(struct tinf_data *d)
 /* Inflate a block of data compressed with fixed Huffman trees */
 static int tinf_inflate_fixed_block(struct tinf_data *d)
 {
-/* Build fixed Huffman trees */
-	tinf_build_fixed_trees(&d->ltree, &d->dtree);
-
-	/* Decode block using fixed trees */
-	return tinf_inflate_block_data(d, &d->ltree, &d->dtree);
+#ifdef T3P_TINF_PROFILE
+    uint32_t start=t3p_tinf_clock();
+    t3p_tinf_profile[TINF_P_FIXED]++;
+#endif
+    tinf_build_fixed_trees(&d->ltree, &d->dtree);
+#ifdef T3P_TINF_PROFILE
+    t3p_tinf_charge(TINF_P_TREE,start);
+    start=t3p_tinf_clock();
+    int result=tinf_inflate_block_data(d, &d->ltree, &d->dtree);
+    t3p_tinf_charge(TINF_P_PAYLOAD,start);
+    return result;
+#else
+    return tinf_inflate_block_data(d, &d->ltree, &d->dtree);
+#endif
 }
 
 /* Inflate a block of data compressed with dynamic Huffman trees */
 static int tinf_inflate_dynamic_block(struct tinf_data *d)
 {
-	/* Decode trees from stream */
-	int res = tinf_decode_trees(d, &d->ltree, &d->dtree);
-
-	if (res != TINF_OK) {
-		return res;
-	}
-
-	/* Decode block using decoded trees */
-	return tinf_inflate_block_data(d, &d->ltree, &d->dtree);
+#ifdef T3P_TINF_PROFILE
+    uint32_t start=t3p_tinf_clock();
+    t3p_tinf_profile[TINF_P_DYNAMIC]++;
+#endif
+    int res = tinf_decode_trees(d, &d->ltree, &d->dtree);
+#ifdef T3P_TINF_PROFILE
+    t3p_tinf_charge(TINF_P_TREE,start);
+#endif
+    if (res != TINF_OK) return res;
+#ifdef T3P_TINF_PROFILE
+    start=t3p_tinf_clock();
+    res=tinf_inflate_block_data(d, &d->ltree, &d->dtree);
+    t3p_tinf_charge(TINF_P_PAYLOAD,start);
+    return res;
+#else
+    return tinf_inflate_block_data(d, &d->ltree, &d->dtree);
+#endif
 }
 
 /* -- Public functions -- */
@@ -655,6 +780,9 @@ int tinf_uncompress(void *dest, unsigned int *destLen,
 {
 	struct tinf_data d;
 	int bfinal;
+#ifdef T3P_TINF_PROFILE
+    t3p_tinf_profile[TINF_P_CALLS]++;
+#endif
 
 	/* Initialise data */
 	d.source = (const unsigned char *) source;
@@ -680,9 +808,18 @@ int tinf_uncompress(void *dest, unsigned int *destLen,
 		/* Decompress block */
 		switch (btype) {
 		case 0:
-			/* Decompress uncompressed block */
-			res = tinf_inflate_uncompressed_block(&d);
-			break;
+            /* Stored blocks are separate from compressed payload work. */
+#ifdef T3P_TINF_PROFILE
+            {
+                uint32_t start=t3p_tinf_clock();
+                t3p_tinf_profile[TINF_P_STORED_BLOCKS]++;
+                res=tinf_inflate_uncompressed_block(&d);
+                t3p_tinf_charge(TINF_P_STORED,start);
+            }
+#else
+            res = tinf_inflate_uncompressed_block(&d);
+#endif
+            break;
 		case 1:
 			/* Decompress block with fixed Huffman trees */
 			res = tinf_inflate_fixed_block(&d);

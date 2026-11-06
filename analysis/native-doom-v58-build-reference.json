@@ -1,0 +1,45 @@
+{
+  "revision": 58,
+  "image": {
+    "filename": "T3P_NATIVE_DOOM_E1M1_V58_3.0.3.bin",
+    "bytes": 1540096,
+    "sha256": "2afcd1a2d35344c9c87ddf5f797f4465d31732e73a61f7e16bb60eb06a85e738",
+    "app_bytes": 1465664,
+    "app_sha256": "a9b65591c6183ea3127c0cbe6bf61c02c5d3d1f6b17a3d57b9b151cade589da3",
+    "stock_3.0.3_sha256": "72571d747e9da86194deddae3802992f846415c45b82d7b28f8aa567af30acb2"
+  },
+  "game_pack": {
+    "profile": "Reduced-detail Freedoom 0.13.0 E1M1, all pages raw",
+    "bytes": 1199344,
+    "sha256": "9febb635d1c66b1409938c444481e77a72a16a36ff4ee79a2d21c651ca40ae5f",
+    "raw_pages": 582
+  },
+  "layout": {
+    "actual_static_ram_bytes": 116784,
+    "explicit_driver_ram_budget_bytes": 32768,
+    "explicit_stack_budget_bytes": 16384,
+    "remaining_ram_bytes": 52032,
+    "app_flash_budget_bytes": 1465664,
+    "flash_used_including_driver_budget": 1434864,
+    "remaining_app_flash_bytes": 30800
+  },
+  "verification": {
+    "rebuild_from_source_matches_update_image": true,
+    "first_20_kib_matches_stock": true,
+    "other_entries_and_resource_tail_match_stock": true,
+    "decrypted_app_matches_payload": true,
+    "all_four_nested_crcs_rebuilt": true,
+    "unit_tests_passed": 66,
+    "host_checks": [
+      "scripts/check_input.py",
+      "scripts/check_present.py"
+    ]
+  },
+  "hardware": {
+    "v58_startup": "User confirmed the new startup banner on their T3P.",
+    "earlier_play_builds": "User verified continuous play, both buttons, touch, tilt, clap-to-fire and distinct shot/damage vibration.",
+    "normal_play_fps": "Unmeasured",
+    "pressure_and_altitude": "Host tests with simulated sensor data. Hardware accuracy and upper-deck detection remain unverified.",
+    "recovery": "Stock HID updater entry and a return to official 3.0.3 were verified during earlier bring-up."
+  }
+}
