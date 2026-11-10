@@ -56,25 +56,26 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--doom',action='store_true')
     parser.add_argument('--package-doom',action='store_true')
     parser.add_argument('--release-app',action='store_true',
-                        help='Link the V58 release candidate without JieLi runtime archives')
+                        help='Link a release candidate without JieLi runtime archives')
     parser.add_argument('--toolchain',type=Path,default=ROOT/'local/tools/jieli/C$/JL/pi32')
     parser.add_argument('--game-data',type=Path)
     parser.add_argument('--revision',type=int,default=2)
     parser.add_argument('--lz4-module-path',type=Path,default=ROOT/'local/host-lz4')
     args=parser.parse_args()
-    if args.release_app and (not args.doom or args.revision != 58):
-        parser.error('--release-app requires --doom --revision 58')
+    if args.release_app and (not args.doom or args.revision not in (58,59,60)):
+        parser.error('--release-app requires --doom and revision 58, 59 or 60')
     if not args.release_app:
         generate()
-    weapon_view_y=args.doom and args.revision in (50,51,52,53,54,55,56,57,58)
-    touch_move=args.doom and args.revision in (51,52,53,54,55,56,57,58)
-    dual_keys=args.doom and args.revision in (52,53,54,55,56,57,58)
-    sensor_controls=args.doom and args.revision in (53,54,55,56,57,58)
-    haptics=args.doom and args.revision in (55,56,57,58)
-    uac_monitor=args.doom and args.revision in (56,57,58)
-    seamless_view=args.doom and args.revision in (57,58)
-    startup_banner=args.doom and args.revision==58
-    # V50 through V58 inherit the V49 play configuration.
+    weapon_view_y=args.doom and args.revision in (50,51,52,53,54,55,56,57,58,59,60)
+    touch_move=args.doom and args.revision in (51,52,53,54,55,56,57,58,59,60)
+    dual_keys=args.doom and args.revision in (52,53,54,55,56,57,58,59,60)
+    sensor_controls=args.doom and args.revision in (53,54,55,56,57,58,59,60)
+    haptics=args.doom and args.revision in (55,56,57,58,59,60)
+    uac_monitor=args.doom and args.revision in (56,57,58,59,60)
+    # V59 missed the V57 viewport expansion. V60 restores it.
+    seamless_view=args.doom and args.revision in (57,58,60)
+    startup_banner=args.doom and args.revision in (58,59,60)
+    # V50 through V60 inherit the V49 play configuration.
     revision=49 if weapon_view_y else args.revision
     lowres_game=args.doom and revision in (45,46,47,48,49)
     raw_game_only=lowres_game and revision in (46,47,48,49)
@@ -511,7 +512,7 @@ def main():
                                'physical microphone rearm and tilt response during/after vibration'])
     if uac_monitor:
         report['source_sha256']['t3p_baro.h']=digest((ROOT/'native/t3p_baro.h').read_bytes())
-        report['initialized_hardware'].append('BMP280-compatible pressure sensor at 0x77 on PB02/PB01 I2C')
+        report['initialized_hardware'].append('BMP280-compatible 0x77 and stock fallback 0x20 pressure sensors on PB02/PB01 I2C')
         report['play_mode'].update(
             tilt_input='V55 tilt with roll sign corrected and 300/200 engagement/release thresholds out of 1024.',
             uac_monitor='Main-menu page with compensated pressure, altitude relative to the initial eight samples, and an upper-deck message after nine consecutive filtered samples at +3 m or higher.',
@@ -547,7 +548,7 @@ def main():
         assert encoded[:0x5000]==raw[:0x5000]
         assert encoded[bounds[1]:]==raw[bounds[1]:]
         doom_name='T3P_NATIVE_DOOM_E1M1_3.0.3.bin' if revision==2 else f'T3P_NATIVE_DOOM_E1M1_V{args.revision}_3.0.3.bin'
-        if args.release_app:doom_name='T3P_NATIVE_DOOM_E1M1_V58.1_3.0.3.bin'
+        if args.release_app and args.revision==58:doom_name='T3P_NATIVE_DOOM_E1M1_V58.1_3.0.3.bin'
         firmware=out/(doom_name if args.doom else f'T3P_NATIVE_BRINGUP_V{revision}_3.0.3.bin');firmware.write_bytes(encoded)
         report.update(image_sha256=digest(encoded),image_bytes=len(encoded),
                       image_path=firmware.relative_to(ROOT).as_posix(),

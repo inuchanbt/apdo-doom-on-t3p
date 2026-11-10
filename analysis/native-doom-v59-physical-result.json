@@ -1,0 +1,22 @@
+{
+  "revision": 59,
+  "image": {
+    "image_sha256": "289f2bcfa955878c4d7c6faf3370039e3727af54cdf108cbca3be86fd1d17b1a",
+    "image_bytes": 1540096,
+    "payload_sha256": "135d4f8c09ba0b48d1b608b83bcf2662da1f865c04cad052aeada08886401ba3"
+  },
+  "prior_versions": {
+    "V58": "UAC MONITOR READ ERROR",
+    "V58.1": "UAC MONITOR READ ERROR"
+  },
+  "hardware": {
+    "evidence": "Owner reported SENSOR 20 on the T3P on 2026-11-10 (JST).",
+    "confirmed": "V59 boot, UAC MONITOR access and valid samples at I2C address 0x20. The marker is drawn only in the ready state after eight valid samples.",
+    "pending": [
+      "pressure accuracy",
+      "relative altitude response",
+      "V59 to stock 3.0.3 restore"
+    ],
+    "display": "Owner confirmed the weapon sprite is positioned correctly and reported a gap between the 3D view and HUD. The V59 build omitted T3P_SEAMLESS_VIEW."
+  }
+}

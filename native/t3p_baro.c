@@ -6,7 +6,9 @@ enum {
     SAMPLE_MS = 250, CONVERSION_MS = 32, RETRY_MS = 1000,
     UPPER_DECK_DM = 30, UPPER_DECK_SAMPLES = 9,
     BMP280_ID = 0xd0, BMP280_CALIBRATION = 0x88, BMP280_STATUS = 0xf3,
-    BMP280_CTRL_MEAS = 0xf4, BMP280_FORCED_T2_P8 = 0x51
+    BMP280_CTRL_MEAS = 0xf4, BMP280_FORCED_T2_P8 = 0x51,
+    ALT_BARO = 0x20, ALT_STATUS = 0x14, ALT_PRESSURE = 0x17,
+    ALT_DATA_READY = 0x02, ALT_STREAMING = 3
 };
 
 static uint16_t read_le16(const uint8_t *bytes)
@@ -26,24 +28,61 @@ static int read_registers(const struct t3p_sensor_bus *bus, uint8_t reg,
     return bus->read(bus->ctx, T3P_BMP280, reg, data, count) == (int)count;
 }
 
+static enum t3p_baro_status failure(struct t3p_baro *baro, const char *diagnostic)
+{
+    baro->reading.diagnostic = diagnostic;
+    return T3P_BARO_READ_ERROR;
+}
+
+static int read_alternate(const struct t3p_sensor_bus *bus, uint8_t reg, uint8_t *value)
+{
+    return bus->read(bus->ctx, ALT_BARO, reg, value, 1) == 1;
+}
+
+static enum t3p_baro_status configure_alternate(struct t3p_baro *baro,
+                                                const struct t3p_sensor_bus *bus)
+{
+    /* Stock 3.0.3's fallback writes at 0x0c0e6e1a. Space the two reset writes
+     * across polls so the sensor has time to settle without blocking a frame. */
+    static const uint8_t start[][2] = {{0x07, 0x08}, {0x08, 0x00}, {0x09, 0x22}, {0x06, 0x13}};
+    if (baro->alternate_stage < 2) {
+        uint8_t value = baro->alternate_stage == 0 ? 0x08 : 0x80;
+        if (bus->write(bus->ctx, ALT_BARO, 0x06, value))
+            return failure(baro, "ALT RESET");
+    } else {
+        for (unsigned i = 0; i < sizeof(start) / sizeof(start[0]); ++i)
+            if (bus->write(bus->ctx, ALT_BARO, start[i][0], start[i][1]))
+                return failure(baro, "ALT CONFIG");
+    }
+    ++baro->alternate_stage;
+    baro->reading.sensor_address = ALT_BARO;
+    return T3P_BARO_WAITING;
+}
+
 static enum t3p_baro_status configure(struct t3p_baro *baro, const struct t3p_sensor_bus *bus)
 {
     uint8_t id, status, trim[24];
-    if (!bus || !bus->read || !bus->write || !read_registers(bus, BMP280_ID, &id, 1))
-        return T3P_BARO_READ_ERROR;
-    if (id != 0x58)
-        return T3P_BARO_UNSUPPORTED;
+    if (!bus || !bus->read || !bus->write)
+        return failure(baro, "NO BUS");
+    int bmp_ack = read_registers(bus, BMP280_ID, &id, 1);
+    if (!bmp_ack || id != 0x58) {
+        if (read_alternate(bus, ALT_STATUS, &status) && status != 0xff)
+            return configure_alternate(baro, bus);
+        if (bmp_ack)
+            return T3P_BARO_UNSUPPORTED;
+        return failure(baro, "NO BARO ACK");
+    }
     if (!read_registers(bus, BMP280_STATUS, &status, 1))
-        return T3P_BARO_READ_ERROR;
+        return failure(baro, "BMP STATUS");
     if (status & 1u) /* Calibration NVM is still being copied. */
         return T3P_BARO_WAITING;
     if (!read_registers(bus, BMP280_CALIBRATION, trim, sizeof(trim)))
-        return T3P_BARO_READ_ERROR;
+        return failure(baro, "BMP TRIM I2C");
 
     baro->t1 = read_le16(trim);
     baro->p1 = read_le16(trim + 6);
     if (!baro->t1 || baro->t1 == 0xffff || !baro->p1 || baro->p1 == 0xffff)
-        return T3P_BARO_READ_ERROR;
+        return failure(baro, "BMP TRIM");
     baro->t2 = read_signed_le16(trim + 2);
     baro->t3 = read_signed_le16(trim + 4);
     baro->p2 = read_signed_le16(trim + 8);
@@ -55,8 +94,9 @@ static enum t3p_baro_status configure(struct t3p_baro *baro, const struct t3p_se
     baro->p8 = read_signed_le16(trim + 20);
     baro->p9 = read_signed_le16(trim + 22);
     if (bus->write(bus->ctx, T3P_BMP280, BMP280_CTRL_MEAS, 0))
-        return T3P_BARO_READ_ERROR;
+        return failure(baro, "BMP CONFIG");
     baro->configured = 1;
+    baro->reading.sensor_address = T3P_BMP280;
     return T3P_BARO_WAITING;
 }
 
@@ -126,6 +166,7 @@ static void update_reading(struct t3p_baro *baro, uint32_t pressure_pa, uint32_t
     baro->reading.pressure_pa = (int32_t)filtered_pa;
     baro->reading.altitude_dm = height_dm;
     baro->reading.status = T3P_BARO_READY;
+    baro->reading.diagnostic = 0;
     if (height_dm < UPPER_DECK_DM)
         baro->high_samples = 0;
     else if (!baro->reading.upper_deck && ++baro->high_samples == UPPER_DECK_SAMPLES)
@@ -137,9 +178,53 @@ void t3p_baro_init(struct t3p_baro *baro, uint32_t now)
     *baro = (struct t3p_baro){.last_start_ms = now - RETRY_MS, .last_valid_ms = now};
 }
 
+static void poll_alternate(struct t3p_baro *baro, const struct t3p_sensor_bus *bus,
+                           uint32_t now)
+{
+    if (baro->alternate_stage < ALT_STREAMING) {
+        baro->reading.status = configure_alternate(baro, bus);
+        if (baro->reading.status == T3P_BARO_READ_ERROR)
+            baro->alternate_stage = 0;
+        baro->last_valid_ms = now;
+        return;
+    }
+
+    uint8_t status, data[3];
+    if (!read_alternate(bus, ALT_STATUS, &status) || status == 0xff) {
+        baro->reading.status = failure(baro, "ALT STATUS");
+    } else if (!(status & ALT_DATA_READY)) {
+        if (now - baro->last_valid_ms <= RETRY_MS)
+            return;
+        baro->reading.status = failure(baro, "ALT NO DATA");
+    } else if (!read_alternate(bus, ALT_PRESSURE, &data[0]) ||
+               !read_alternate(bus, ALT_PRESSURE + 1, &data[1]) ||
+               !read_alternate(bus, ALT_PRESSURE + 2, &data[2])) {
+        baro->reading.status = failure(baro, "ALT DATA I2C");
+    } else {
+        /* Stock 0x0c011f48 reads a little-endian 24-bit value and scales by
+         * 6400 counts/hPa. Keep the conversion integer, rounded to Pa. */
+        uint32_t counts = data[0] | (uint32_t)data[1] << 8 | (uint32_t)data[2] << 16;
+        uint32_t pressure = (counts + 32) / 64;
+        if (pressure >= 30000 && pressure <= 110000) {
+            update_reading(baro, pressure, now);
+            return;
+        }
+        baro->reading.status = failure(baro, "ALT RANGE");
+    }
+    baro->alternate_stage = 0;
+    reset_filter(baro);
+}
+
 void t3p_baro_poll(struct t3p_baro *baro, const struct t3p_sensor_bus *bus, uint32_t now)
 {
     uint32_t elapsed = now - baro->last_start_ms;
+    if (baro->alternate_stage) {
+        if (elapsed >= SAMPLE_MS) {
+            baro->last_start_ms = now;
+            poll_alternate(baro, bus, now);
+        }
+        return;
+    }
     if (!baro->configured) {
         if (baro->reading.status != T3P_BARO_UNSUPPORTED && elapsed >= RETRY_MS) {
             baro->last_start_ms = now;
@@ -151,15 +236,23 @@ void t3p_baro_poll(struct t3p_baro *baro, const struct t3p_sensor_bus *bus, uint
     if (baro->measuring && elapsed >= CONVERSION_MS) {
         struct t3p_pressure_raw raw;
         baro->measuring = 0;
-        uint32_t pressure = t3p_pressure_read(bus, &raw) ? 0 : compensated_pa(baro, raw);
-        if (!pressure)
+        if (t3p_pressure_read(bus, &raw)) {
+            failure(baro, "BMP DATA");
             goto read_error;
+        }
+        uint32_t pressure = compensated_pa(baro, raw);
+        if (!pressure) {
+            failure(baro, "BMP RANGE");
+            goto read_error;
+        }
         update_reading(baro, pressure, now);
     }
     if (elapsed >= SAMPLE_MS) {
         baro->last_start_ms = now;
-        if (bus->write(bus->ctx, T3P_BMP280, BMP280_CTRL_MEAS, BMP280_FORCED_T2_P8))
+        if (bus->write(bus->ctx, T3P_BMP280, BMP280_CTRL_MEAS, BMP280_FORCED_T2_P8)) {
+            failure(baro, "BMP START");
             goto read_error;
+        }
         baro->measuring = 1;
     }
     return;

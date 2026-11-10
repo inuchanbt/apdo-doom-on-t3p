@@ -23,6 +23,8 @@ static int read_sensor(void *context, uint8_t address, uint8_t reg,
                        uint8_t *data, unsigned count)
 {
     struct fake_baro *fake = context;
+    if (address == 0x20)
+        return -1;
     assert(address == T3P_BMP280);
     if (fake->no_ack)
         return -1;
@@ -80,6 +82,69 @@ static void sample(struct t3p_baro *baro, const struct t3p_sensor_bus *bus, uint
     *start += 250;
     t3p_baro_poll(baro, bus, *start);
     t3p_baro_poll(baro, bus, *start + 32);
+}
+
+struct fake_alternate {
+    uint32_t counts;
+    unsigned writes;
+    uint8_t ready;
+};
+
+static int read_alternate(void *context, uint8_t address, uint8_t reg,
+                          uint8_t *data, unsigned count)
+{
+    struct fake_alternate *fake = context;
+    if (address == T3P_BMP280)
+        return -1;
+    assert(address == 0x20 && count == 1);
+    if (reg == 0x14) {
+        data[0] = fake->ready ? 0x02 : 0;
+    } else {
+        assert(fake->ready && fake->writes == 6 && reg >= 0x17 && reg <= 0x19);
+        data[0] = (uint8_t)(fake->counts >> ((reg - 0x17) * 8));
+    }
+    return 1;
+}
+
+static int write_alternate(void *context, uint8_t address, uint8_t reg, uint8_t value)
+{
+    static const uint8_t sequence[][2] = {
+        {0x06, 0x08}, {0x06, 0x80}, {0x07, 0x08}, {0x08, 0}, {0x09, 0x22}, {0x06, 0x13}
+    };
+    struct fake_alternate *fake = context;
+    assert(address == 0x20 && fake->writes < 6);
+    assert(reg == sequence[fake->writes][0] && value == sequence[fake->writes][1]);
+    ++fake->writes;
+    return 0;
+}
+
+static void check_alternate(void)
+{
+    struct fake_alternate fake = {.counts = 100653u * 64 + 10};
+    const struct t3p_sensor_bus bus = {read_alternate, &fake, write_alternate};
+    struct t3p_baro baro;
+    t3p_baro_init(&baro, 0);
+    t3p_baro_poll(&baro, &bus, 0);
+    assert(fake.writes == 1);
+    t3p_baro_poll(&baro, &bus, 249);
+    assert(fake.writes == 1);
+    t3p_baro_poll(&baro, &bus, 250);
+    assert(fake.writes == 2);
+    t3p_baro_poll(&baro, &bus, 500);
+    t3p_baro_poll(&baro, &bus, 750);
+    assert(fake.writes == 6 && baro.reading.status == T3P_BARO_WAITING);
+    fake.ready = 1;
+    for (uint32_t now = 1000; now <= 2750; now += 250)
+        t3p_baro_poll(&baro, &bus, now);
+    assert(baro.reading.status == T3P_BARO_READY && baro.reading.sensor_address == 0x20);
+    assert(baro.reading.pressure_pa == 100653 && baro.reading.altitude_dm == 0);
+    fake.ready = 0;
+    t3p_baro_poll(&baro, &bus, 3000);
+    assert(baro.reading.status == T3P_BARO_READY);
+    t3p_baro_poll(&baro, &bus, 4000);
+    assert(baro.reading.status == T3P_BARO_READ_ERROR && !baro.alternate_stage);
+    assert(baro.reading.diagnostic);
+    puts("PASS: stock alternate barometer setup, ready bit, Pa conversion and timeout");
 }
 
 int main(void)
@@ -155,6 +220,7 @@ int main(void)
     t3p_baro_poll(&baro, &bus, start);
     assert(baro.reading.status == T3P_BARO_UNSUPPORTED && fake.sleep_writes == 2);
     assert(!baro.reading.upper_deck);
+    check_alternate();
     puts("PASS: BMP280 compensation, baseline, sustained rise, sensor failures and timer wrap");
     return 0;
 }

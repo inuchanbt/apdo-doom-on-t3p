@@ -1,0 +1,26 @@
+{
+  "revision": 60,
+  "image": {
+    "image_path": "artifacts/native-doom-v60-prebuilt/T3P_NATIVE_DOOM_E1M1_V60_3.0.3.bin",
+    "image_bytes": 1540096,
+    "image_sha256": "fa190f8fcc78c23570139d2f68fb7264d304285638261cb46c9fdc870c94324c",
+    "payload_sha256": "bb705f5ba527b0ee11058df24e9939beb19e51001a33a08c2317516f7ac182ba"
+  },
+  "hardware": {
+    "date_jst": "2026-11-10",
+    "evidence": "Owner report on their ATORCH T3P",
+    "boot_and_gameplay": true,
+    "view_to_hud_gap_gone": true,
+    "uac_sensor": "SENSOR 20",
+    "displayed_pressure_hpa": "1015.80",
+    "pending": [
+      "pressure accuracy",
+      "relative altitude response",
+      "V60 to stock 3.0.3 restore"
+    ]
+  },
+  "offline": {
+    "pack_reproduces_reference_image": true,
+    "source_zip_reproduces_app": true
+  }
+}

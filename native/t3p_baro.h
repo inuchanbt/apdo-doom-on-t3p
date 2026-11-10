@@ -16,7 +16,8 @@ struct t3p_uac_reading {
     enum t3p_baro_status status;
     int32_t pressure_pa;
     int32_t altitude_dm;
-    uint8_t upper_deck;
+    uint8_t upper_deck, sensor_address;
+    const char *diagnostic;
 };
 
 enum { T3P_BARO_FILTER_SAMPLES = 8 };
@@ -27,6 +28,7 @@ struct t3p_baro {
     uint32_t samples_pa[T3P_BARO_FILTER_SAMPLES];
     uint16_t t1, p1;
     int16_t t2, t3, p2, p3, p4, p5, p6, p7, p8, p9;
+    uint8_t alternate_stage;
     uint8_t configured, measuring, sample_count, sample_index, high_samples;
 };
 

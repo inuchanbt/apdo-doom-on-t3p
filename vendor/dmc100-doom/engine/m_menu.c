@@ -483,12 +483,18 @@ static void M_DrawUacMonitor(void)
         plat_fmt(value, sizeof(value), "%c%u.%u m", dm < 0 ? '-' : '+',
                  magnitude / 10, magnitude % 10);
         M_WriteUacText(x, 108, value);
+        if (!reading->upper_deck && reading->sensor_address == 0x20)
+            M_WriteUacText(x, 130, "SENSOR 20");
     } else if (reading->status == T3P_BARO_WAITING) {
         M_WriteUacText(x, 68, "SAMPLING...");
+        if (reading->diagnostic)
+            M_WriteUacText(x, 94, reading->diagnostic);
     } else if (reading->status == T3P_BARO_UNSUPPORTED) {
         M_WriteUacText(x, 68, "SENSOR ID ERROR");
     } else {
         M_WriteUacText(x, 68, "READ ERROR");
+        if (reading->diagnostic)
+            M_WriteUacText(x, 94, reading->diagnostic);
     }
     if (reading->upper_deck)
         M_WriteUacText(x, 130, "UPPER DECK FOUND");
