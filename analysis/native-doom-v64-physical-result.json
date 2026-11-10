@@ -1,0 +1,27 @@
+{
+  "revision": 64,
+  "image": {
+    "image_path": "artifacts/native-doom-v64-prebuilt/T3P_NATIVE_DOOM_E1M1_V64_3.0.3.bin",
+    "image_bytes": 1540096,
+    "image_sha256": "9256b3223cac4c55a22d7e3eb5f4eecf11e038f3fc209697f8cd26cffbcd8be0",
+    "payload_sha256": "cbef61f3a6616b9b991438313a78d083cb09a71f1c60c09d26abaf58fc2214ce"
+  },
+  "hardware": {
+    "device": "ATORCH T3P",
+    "host": "Windows",
+    "evidence": "Owner reported two consecutive --probe runs at echo verified (3/3), then keyboard gameplay on the same USB connection.",
+    "probe_runs": 2,
+    "echoes_per_probe": 3,
+    "usb_replug_between_runs": false,
+    "keyboard_actions_confirmed": [
+      "movement",
+      "fire",
+      "open door"
+    ],
+    "pending": [
+      "focus-loss key release on hardware",
+      "live screen capture"
+    ]
+  },
+  "distribution": "Private hardware test using pid.codes test PID 1209:0001."
+}

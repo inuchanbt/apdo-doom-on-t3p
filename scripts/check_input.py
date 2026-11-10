@@ -18,8 +18,10 @@ def main():
         'sensor_controls': ['t3p_input.c', 't3p_tilt.c', 't3p_mic.c'],
         'haptics': ['t3p_bsp.c', 't3p_lcd_sequence.c', 't3p_haptics.c'],
         'barometer': ['t3p_baro.c'],
+        'usb_keys': [],
     }
-    defines = {'haptics': ['-DT3P_HAPTICS'], 'sensor_controls': ['-DT3P_TILT_TUNING']}
+    defines = {'usb_keys': ['-DT3P_USB_CAPTURE', '-DT3P_USB_CAPTURE_FAST',
+                            '-DT3P_USB_VID=0x1209', '-DT3P_USB_PID=1'], 'haptics': ['-DT3P_HAPTICS'], 'sensor_controls': ['-DT3P_TILT_TUNING']}
     for test, drivers in checks.items():
         exe=output/f'{test}.exe'
         subprocess.run([str(args.compiler),'-std=c11','-Wall','-Wextra','-Werror','-O2',

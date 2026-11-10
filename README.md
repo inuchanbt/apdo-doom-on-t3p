@@ -4,9 +4,9 @@
 
 [Prebuilt app and offline packaging](docs/PREBUILT.md)
 
-This experimental native port runs Freedoom E1M1 on the ATORCH T3P's 240×240 LCD. **V58** boots from a centered Freedoom banner straight into E1M1. The game runs on the T3P with its built-in buttons, touchscreen and sensors.
+This experimental native port runs Freedoom E1M1 on the ATORCH T3P's 240×240 LCD. The current build boots from a centered Freedoom banner straight into E1M1. The game runs on the T3P with its built-in buttons, touchscreen and sensors.
 
-## Play V58
+## Play on the T3P
 
 Hold the T3P with its USB-C plug pointing up. After the game appears, hold it still for about a second to set the neutral tilt position.
 
@@ -20,6 +20,21 @@ Hold the T3P with its USB-C plug pointing up. After the game appears, hold it st
 | Clap | Fire one shot after the microphone adapts to ambient sound. |
 
 Firing a weapon and taking damage use distinct vibration pulses. On hardware, a clap fired once and the motor did not trigger another shot. The menu's **UAC MONITOR** shows pressure in hPa and altitude relative to startup. A sustained rise of at least 3 m triggers `UPPER DECK FOUND`. The pressure and altitude behavior was checked with simulated readings. [Controls and diagnostics](docs/CONTROLS.ja.md).
+
+## V66 PC controls and live capture
+
+The owner played on a real T3P using the browser preview. V65 already streamed video while accepting input, but was too slow to play by watching the PC. V66 defaults to **Fast 60×60** and also offers **Detail 120×120**. The browser reports the rate of received frames and the time to acquire the last frame. The hardware result was qualitative.
+
+Install Python and the HIDAPI binding on Windows. With the V65 or V66 test firmware running, connect the dedicated side HID port and close any other T3P controller.
+
+```powershell
+py -3 -m pip install hidapi
+py -3 scripts/t3p_pc_controller.py
+```
+
+Open [the local controller](http://127.0.0.1:50595/) and enable keyboard input. Use WASD or the arrows to move and turn, Space to fire, E to use a door or switch, and Esc/Enter for the menu. You can pause the preview or save the latest frame as a BMP.
+
+The V66 source preview includes the firmware code and PC controller. The prebuilt V66 app and offline packaging kit are pending a USB ID assigned to the project. The non-unique `1209:0001` is reserved for private testing. For a private build, follow the local build preparation below and use `--revision 66 --release-app --package-doom --private-usb-test` in the final command. Builds with an assigned identity use `--usb-id VID:PID`, which the PC controller also accepts. [Test PID terms](https://pid.codes/1209/0001/).
 
 ## Bring-up and performance
 

@@ -6,6 +6,9 @@
 #ifdef T3P_ASSET_4_START
 #include <string.h>
 #endif
+#ifdef T3P_USB_KEYS
+#include "t3p_usb_keys.h"
+#endif
 #include "t3p_bsp.h"
 #include "t3p_boot.h"
 #include "t3p_signal.h"
@@ -58,7 +61,19 @@ static struct t3p_display display;
 void km_fail(const char *message) __attribute__((noreturn));
 #ifdef T3P_FRAME_PRESENTER
 static void frame_service(void)
-{ if(t3p_present_service(&presenter))km_fail("frame service"); }
+{
+#ifdef T3P_USB_CAPTURE_FAST
+    /* The USB IN endpoint can take a new report every millisecond. Refill
+     * it during rendering without doing a full USB poll on every column. */
+    static uint32_t last_usb_poll;
+    uint32_t now = t3p_bsp_millis(&board);
+    if (now != last_usb_poll) {
+        last_usb_poll = now;
+        t3p_usb_keys_poll(now);
+    }
+#endif
+    if(t3p_present_service(&presenter))km_fail("frame service");
+}
 static int frame_poll(void *context)
 { return t3p_bsp_dma_poll(context); }
 static int frame_wait(void *context)
@@ -309,7 +324,12 @@ static uint32_t fire_level(void)
 static void sample_column_buttons(int x)
 {
 #ifdef T3P_DUAL_KEYS
-    if((x&7)==0)sample_buttons();
+    if((x&7)==0) {
+        sample_buttons();
+#if defined(T3P_USB_KEYS) && !defined(T3P_USB_CAPTURE_FAST)
+        t3p_usb_keys_poll(t3p_bsp_millis(&board));
+#endif
+    }
 #else
     (void)x;
     fire_pending|=fire_level();
@@ -352,6 +372,9 @@ static void sensor_diagnostic(void)
     t3p_bsp_backlight(&board,1);
     for(;;) {
         uint32_t now=km_millis();
+#ifdef T3P_USB_KEYS
+        t3p_usb_keys_poll(now);
+#endif
         t3p_tilt_poll(&tilt,&sensor_bus,now,0);
         t3p_mic_poll(&mic,&board,now,T3P_MIC_LISTEN);
         if(t3p_mic_take(&mic))++shots;
@@ -377,6 +400,10 @@ static void sensor_diagnostic(void)
             profile_row(8,shots);
 #ifdef T3P_HAPTICS
             profile_row(9,board.haptics.ready);
+#endif
+#ifdef T3P_USB_KEYS
+            profile_row(10,0x00555342u); /* USB */
+            for(unsigned row=0;row<9;++row)profile_row(11+row,t3p_usb_keys_debug(row));
 #endif
         }
         km_sleep(5);
@@ -460,6 +487,10 @@ void km_present(void)
         if(t3p_present_commit(&presenter,pump_lut,overlap))km_fail("frame commit");
         frame_dirty=0;
     } else frame_service(); /* Menus may skip drawing while a frame is pending. */
+#ifdef T3P_USB_CAPTURE
+    if (presenter.submitted)
+        t3p_usb_capture_frame(&presenter.frame[presenter.front][0][0], presenter.palette);
+#endif
 #ifdef T3P_PROFILE_PRESENT
     /* This call's wait/setup time, not concurrent DMA elapsed time. */
     present_ms=km_millis()-begin;
@@ -513,6 +544,11 @@ uint32_t km_keys(void)
 #else
     uint32_t keys=fire_pending|fire_level();
     fire_pending=0;
+#endif
+#ifdef T3P_USB_KEYS
+    uint32_t now=km_millis();
+    t3p_usb_keys_poll(now);
+    keys|=t3p_usb_keys_take(now);
 #endif
 #ifdef T3P_TOUCH_MOVE
     uint32_t touch_keys=t3p_touch_poll(&touch,&board);
@@ -709,6 +745,11 @@ void t3p_board_start(void)
     sensor_bus=t3p_accel_bus_init(&accel_gpio,&board);
     t3p_tilt_init(&tilt,&sensor_bus);
     t3p_mic_init(&mic,&board,km_millis());
+#endif
+#ifdef T3P_USB_KEYS
+    t3p_usb_keys_start(&board.io, km_millis());
+#endif
+#ifdef T3P_SENSOR_CONTROLS
     if(show_sensors)sensor_diagnostic();
 #endif
 #ifdef T3P_UAC_MONITOR
@@ -773,6 +814,9 @@ void t3p_board_start(void)
 #endif
 #ifdef T3P_UAC_MONITOR
         t3p_baro_poll(&barometer, &sensor_bus, km_millis());
+#endif
+#ifdef T3P_USB_KEYS
+        t3p_usb_keys_poll(km_millis());
 #endif
         km_doom_step();
 #ifdef T3P_PROFILE_CACHE

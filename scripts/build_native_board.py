@@ -61,21 +61,41 @@ def main():
     parser.add_argument('--game-data',type=Path)
     parser.add_argument('--revision',type=int,default=2)
     parser.add_argument('--lz4-module-path',type=Path,default=ROOT/'local/host-lz4')
+    usb_identity=parser.add_mutually_exclusive_group()
+    usb_identity.add_argument('--private-usb-test', action='store_true',
+                              help='Use the non-unique 1209:0001 ID for private testing only')
+    usb_identity.add_argument('--usb-id', metavar='VID:PID',
+                              help='Use a USB VID:PID assigned to this project (hexadecimal)')
     args=parser.parse_args()
-    if args.release_app and (not args.doom or args.revision not in (58,59,60)):
-        parser.error('--release-app requires --doom and revision 58, 59 or 60')
+    if args.release_app and (not args.doom or args.revision not in (58,59,60,61,62,63,64,65,66)):
+        parser.error('--release-app requires --doom and revision 58 through 66')
     if not args.release_app:
         generate()
-    weapon_view_y=args.doom and args.revision in (50,51,52,53,54,55,56,57,58,59,60)
-    touch_move=args.doom and args.revision in (51,52,53,54,55,56,57,58,59,60)
-    dual_keys=args.doom and args.revision in (52,53,54,55,56,57,58,59,60)
-    sensor_controls=args.doom and args.revision in (53,54,55,56,57,58,59,60)
-    haptics=args.doom and args.revision in (55,56,57,58,59,60)
-    uac_monitor=args.doom and args.revision in (56,57,58,59,60)
+    weapon_view_y=args.doom and args.revision in (50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66)
+    touch_move=args.doom and args.revision in (51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66)
+    dual_keys=args.doom and args.revision in (52,53,54,55,56,57,58,59,60,61,62,63,64,65,66)
+    sensor_controls=args.doom and args.revision in (53,54,55,56,57,58,59,60,61,62,63,64,65,66)
+    haptics=args.doom and args.revision in (55,56,57,58,59,60,61,62,63,64,65,66)
+    uac_monitor=args.doom and args.revision in (56,57,58,59,60,61,62,63,64,65,66)
     # V59 missed the V57 viewport expansion. V60 restores it.
-    seamless_view=args.doom and args.revision in (57,58,60)
-    startup_banner=args.doom and args.revision in (58,59,60)
-    # V50 through V60 inherit the V49 play configuration.
+    seamless_view=args.doom and args.revision in (57,58,60,61,62,63,64,65,66)
+    startup_banner=args.doom and args.revision in (58,59,60,61,62,63,64,65,66)
+    usb_keys=args.doom and args.revision in (61,62,63,64,65,66)
+    if usb_keys and not (args.private_usb_test or args.usb_id):
+        parser.error('HID builds require an assigned --usb-id or explicit --private-usb-test')
+    if not usb_keys and (args.private_usb_test or args.usb_id):
+        parser.error('USB identity options require --doom and revision 61 through 66')
+    vid, pid = 0x1209, 1
+    if args.usb_id:
+        try:
+            vid, pid = (int(part, 16) for part in args.usb_id.split(':'))
+        except ValueError:
+            parser.error('--usb-id must be a hexadecimal VID:PID pair')
+        if not (0 < vid < 0xffff and 0 <= pid <= 0xffff) or (vid == 0x1209 and pid < 0x2000):
+            parser.error('--usb-id must use an assigned VID:PID outside the reserved pid.codes ranges')
+    usb_capture=usb_keys and args.revision>=65
+    fast_capture=usb_capture and args.revision==66
+    # V50 through V66 inherit the V49 play configuration.
     revision=49 if weapon_view_y else args.revision
     lowres_game=args.doom and revision in (45,46,47,48,49)
     raw_game_only=lowres_game and revision in (46,47,48,49)
@@ -163,6 +183,7 @@ def main():
     if sensor_controls:names+=['t3p_tilt.c','t3p_mic.c']
     if haptics:names+=['t3p_haptics.c',weapon_actions]
     if args.release_app:names+=['runtime_division.c']
+    if usb_keys:names+=['t3p_usb_keys.c']
     if uac_monitor:names+=['t3p_baro.c',menu_source]
     band_source='../vendor/dmc100-doom/port/render/r_band.c'
     if seamless_view:names+=[band_source]
@@ -226,6 +247,10 @@ def main():
         if sensor_controls and name=='bsp_platform.c':
             flags+=['-DT3P_SENSOR_CONTROLS',f'-DT3P_SENSOR_REVISION={args.revision}']
         if haptics:flags+=['-DT3P_HAPTICS']
+        if usb_keys and name=='bsp_platform.c':flags+=['-DT3P_USB_KEYS']
+        if usb_keys and name=='t3p_usb_keys.c':flags += [f'-DT3P_USB_VID={vid}', f'-DT3P_USB_PID={pid}']
+        if usb_capture and name in ('bsp_platform.c','t3p_usb_keys.c'):flags+=['-DT3P_USB_CAPTURE']
+        if fast_capture and name in ('bsp_platform.c','t3p_usb_keys.c'):flags+=['-DT3P_USB_CAPTURE_FAST']
         if uac_monitor and name in ('bsp_platform.c',menu_source):
             flags+=['-DT3P_UAC_MONITOR','-I',str(ROOT/'native')]
         if uac_monitor and name in ('t3p_input.c','t3p_tilt.c'):
@@ -324,7 +349,7 @@ def main():
                               'synchronous DBI command operations','LCDPG static open drain'],
         CPU_PLL_and_SFC='Inherited from stock bootloader, not retuned',
         ROM_imports='No SDK maskrom address bindings',
-        USB_APP_interface=False,device_access=False,device_flashed=False,device_tested=False,
+        USB_APP_interface=usb_keys,device_access=False,device_flashed=False,device_tested=False,
         pending=['physical cold boot and clock/LCD validation','input integration beyond known PA11'],
         expected_display=('Actual DOOM renderer; hardware execution pending successful standalone bring-up'
                           if args.doom else 'RGB bars, white border/top strip, black horizontal middle strip, white block moving along bottom'),
@@ -531,6 +556,12 @@ def main():
             minimum_ms=3000, shown_during_game_init=True, skipped_for_sensor_diagnostics=True)
         report['expected_display']='Freedoom startup logo, then continuous DOOM with the seamless status bar'
         report['pending'].append('physical startup banner and transition to gameplay')
+    if usb_keys:
+        report['usb_identity']=dict(vid_pid=f'{vid:04x}:{pid:04x}', private_test=args.private_usb_test)
+        report['source_sha256']['t3p_usb_keys.h']=digest((ROOT/'native/t3p_usb_keys.h').read_bytes())
+        report['pending'].append('side USB HID enumeration, packet echo and keyboard control on hardware')
+    if usb_capture:report['pending'].append('hardware live 120x120 HID capture while controlling the game')
+    if fast_capture:report['pending'].append('hardware 1ms HID IN polling and 60x60 preview cadence')
     if not args.doom or args.package_doom:
         source=ROOT/'Atorch/T3P Firmware Version 3.0.3.bin'
         raw=source.read_bytes();assert digest(raw)=='72571d747e9da86194deddae3802992f846415c45b82d7b28f8aa567af30acb2'

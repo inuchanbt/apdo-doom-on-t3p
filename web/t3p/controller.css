@@ -1,0 +1,20 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; background: #131820; color: #e8f0f7; }
+body { margin: 0; }
+main { max-width: 880px; margin: auto; padding: 1.5rem; }
+header span, a { color: #83d7ff; }
+h1 { margin: .2rem 0; }
+.workspace { display: grid; grid-template-columns: minmax(240px, 400px) minmax(240px, 1fr); gap: 1.25rem; }
+section { padding: .9rem; background: #1e2733; border: 1px solid #35465a; border-radius: 12px; }
+.toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; margin-bottom: .75rem; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+button { border: 1px solid #4b617d; border-radius: 7px; padding: .6rem; color: inherit; background: #27364b; touch-action: none; }
+button:disabled { opacity: .5; }
+button[aria-pressed=true], button:active { background: #146787; }
+.t3p-frame { margin: 0; position: relative; aspect-ratio: 660 / 900; overflow: hidden; border-radius: 8px; background: #101620; }
+/* 1001px square photo, cropped to 660×900 after rotating the connector up. */
+.t3p-case { position: absolute; top: -5.5556%; left: -25.6061%; width: 151.6667%; transform: rotate(90deg); }
+.t3p-lcd { position: absolute; top: 32.4444%; left: 13.4848%; width: 73.1818%; aspect-ratio: 1; display: grid; place-items: center; background: black; }
+.t3p-frame:has(.t3p-case[hidden]) { aspect-ratio: 1; border: 4px solid #286495; border-radius: 13%; }
+.t3p-frame:has(.t3p-case[hidden]) .t3p-lcd { inset: 8%; width: auto; }
+.t3p-lcd img { width: 100%; image-rendering: pixelated; }
+@media (max-width: 620px) { .workspace { grid-template-columns: minmax(0, 1fr); } }

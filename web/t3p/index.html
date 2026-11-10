@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T3P DOOM · PC Controller</title>
+<link rel="stylesheet" href="/controller.css">
+<script src="/controller.js" defer></script>
+</head>
+<body><main>
+  <header><span>ATORCH T3P</span><h1>DOOM PC Controller</h1><p id="status" role="status">側面USBに接続中…</p></header>
+  <div class="workspace">
+    <section aria-label="T3P画面">
+      <div class="toolbar"><label><input type="checkbox" id="preview" checked> ライブプレビュー</label><select id="size" aria-label="プレビュー解像度" disabled><option value="60">高速 60×60</option><option value="120">精細 120×120</option></select><a id="save" href="/api/frame.bmp" download="t3p-doom.bmp" hidden>BMP保存</a></div>
+      <p id="cadence" hidden></p>
+      <figure class="t3p-frame">
+        <img class="t3p-case" hidden alt="Type-Cオスが上のATORCH T3P" draggable="false">
+        <div class="t3p-lcd"><img id="screen" alt="T3P本体から取得したDOOM画面" hidden><span id="waiting">キャプチャ待ち</span></div>
+      </figure>
+    </section>
+    <section aria-label="操作">
+      <div class="toolbar"><button id="enable" disabled>キーボードを有効にする</button><button id="release">入力を解除</button></div>
+      <div class="controls">
+        <button data-mask="2">↑ / W<br>前進</button><button data-mask="128">↓ / S<br>後退</button>
+        <button data-mask="4">← / A<br>左旋回</button><button data-mask="8">→ / D<br>右旋回</button>
+        <button data-mask="1">Space<br>発射</button><button data-mask="16">E<br>扉</button>
+        <button data-mask="32">Esc<br>メニュー</button><button data-mask="64">Enter<br>決定</button>
+      </div>
+      <p>ボタンはマウスやタッチでも操作できます。タブを離れると入力を解除します。</p>
+    </section>
+  </div>
+</main></body></html>
