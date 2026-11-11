@@ -9,7 +9,7 @@ import struct
 import threading
 import time
 
-from t3p_pc_keyboard import SIGNATURE, TEST_USB_ID, connect, send, usb_id
+from t3p_pc_keyboard import PUBLIC_MANUFACTURER, SIGNATURE, connect, send, usb_id
 
 ROOT = Path(__file__).resolve().parents[1]
 FULL_SIDE, FAST_SIDE, PALETTE_BYTES, CHUNK = 120, 60, 512, 57
@@ -85,11 +85,11 @@ class Controller:
         self.frame = None
         self.frame_interval = self.frame_time = self.capture_ms = None
 
-    def run(self, hid, identity):
+    def run(self, hid, identity, manufacturer):
         while not self.stop.is_set():
             device = None
             try:
-                device = connect(hid, products=PRODUCTS, identity=identity)
+                device = connect(hid, products=PRODUCTS, identity=identity, manufacturer=manufacturer)
                 product = device.get_product_string()
                 self.link(product)
                 self.exchange(device, product == PRODUCTS[1])
@@ -242,8 +242,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', type=int, default=50595)
     parser.add_argument('--shell', type=Path, help='optional square T3P enclosure photo')
-    parser.add_argument('--usb-id', type=usb_id, default=TEST_USB_ID,
-                        help='firmware USB VID:PID in hex (default: private test ID 1209:0001)')
+    parser.add_argument('--usb-id', type=usb_id, help='restrict detection to this USB VID:PID in hex')
+    parser.add_argument('--manufacturer', default=PUBLIC_MANUFACTURER,
+                        help='exact manufacturer string for shared HID 16c0:05df')
     args = parser.parse_args()
     shell = args.shell or ROOT / 'artifacts/pc-preview/t3p.png'
     if not shell.is_file():
@@ -253,7 +254,7 @@ def main():
     import hid
     controller = Controller()
     with ThreadingHTTPServer(('127.0.0.1', args.port), handler_for(controller, shell)) as server:
-        thread = threading.Thread(target=controller.run, args=(hid, args.usb_id), daemon=True)
+        thread = threading.Thread(target=controller.run, args=(hid, args.usb_id, args.manufacturer), daemon=True)
         thread.start()
         print(f'Open http://127.0.0.1:{server.server_port}/  (Ctrl+C to stop)', flush=True)
         try:

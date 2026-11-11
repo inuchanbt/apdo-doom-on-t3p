@@ -86,6 +86,14 @@ int main(void)
 #endif
     control(0x81, 6, 0x2200, 255, 3);
     assert(*reg(EP0_WRITE_SIZE) == sizeof(report_desc) && ep0[1] == 0x61);
+#ifdef T3P_USB_MANUFACTURER_DESC
+    control(0x80, 6, 0x0302, 255, 3);
+    assert(*reg(EP0_WRITE_SIZE) == sizeof(manufacturer_desc));
+    for (unsigned i = 0; i < sizeof(manufacturer_desc); ++i)
+        assert(ep0[i] == manufacturer_desc[i]);
+    control(0x80, 6, 0x0100, 18, 3);
+    assert(ep0[14] == 2);
+#endif
     control(0, 5, 7, 0, 4);
     assert(*reg(FADDR) == 0 && *reg(CSR0) == (SERVICE_RX | DATA_END));
     *reg(CSR0) = 0;
@@ -119,7 +127,12 @@ int main(void)
     *reg(BUS_IRQ) = BUS_RESET;
     t3p_usb_keys_poll(660);
     assert(t3p_usb_keys_take(660) == 0 && *reg(FADDR) == 0);
-    assert(t3p_usb_keys_debug(3) == 2 && t3p_usb_keys_debug(4) == 6);
+    assert(t3p_usb_keys_debug(3) == 2);
+#ifdef T3P_USB_MANUFACTURER_DESC
+    assert(t3p_usb_keys_debug(4) == 8);
+#else
+    assert(t3p_usb_keys_debug(4) == 6);
+#endif
     assert(out_rearms == 4 && t3p_usb_keys_debug(8) == 4);
     assert(t3p_usb_keys_debug(5) == 0x21090200 && t3p_usb_keys_debug(7) == 4);
 #ifdef T3P_USB_CAPTURE

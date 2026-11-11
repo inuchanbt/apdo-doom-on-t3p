@@ -1,4 +1,4 @@
-"""Private T3P DOOM HID test: enumerate, verify echo, then send focused keyboard input."""
+"""T3P DOOM HID keyboard controls and an enumeration/echo probe."""
 # SPDX-License-Identifier: GPL-2.0-or-later
 import argparse
 import queue
@@ -7,6 +7,8 @@ import time
 
 # Non-unique pid.codes identity for private hardware testing only.
 TEST_USB_ID = (0x1209, 0x0001)
+PUBLIC_USB_ID = (0x16c0, 0x05df)
+PUBLIC_MANUFACTURER = 'usb.pd.epr.240w@gmail.com'
 USAGE_PAGE, USAGE = 0xFF61, 1
 PRODUCTS = ('T3P DOOM V61', 'T3P DOOM V62', 'T3P DOOM V63', 'T3P DOOM V64', 'T3P DOOM V65', 'T3P DOOM V66')
 SIGNATURE = b'T3P1'
@@ -38,16 +40,20 @@ def usb_id(value):
     raise argparse.ArgumentTypeError('Expected a hexadecimal VID:PID pair')
 
 
-def connect(hid, echoes=1, products=PRODUCTS, identity=TEST_USB_ID):
-    candidates = hid.enumerate(*identity)
+def connect(hid, echoes=1, products=PRODUCTS, identity=None, manufacturer=PUBLIC_MANUFACTURER):
+    identities = (identity,) if identity else (PUBLIC_USB_ID, TEST_USB_ID)
+    candidates = [device for pair in identities for device in hid.enumerate(*pair)]
+    # The shared ID requires whole-string manufacturer AND product matching.
     devices = [d for d in candidates
                if (d.get('usage_page'), d.get('usage')) == (USAGE_PAGE, USAGE)
-               and d.get('product_string') in products]
+               and d.get('product_string') in products
+               and ((d.get('vendor_id'), d.get('product_id')) != PUBLIC_USB_ID or
+                    d.get('manufacturer_string') == manufacturer)]
     if len(devices) != 1:
         details = ', '.join(f"{d.get('product_string')!r} usage={d.get('usage_page')}/{d.get('usage')}"
                             for d in candidates) or 'none'
         raise RuntimeError(f'Expected one T3P DOOM HID interface, found {len(devices)}. '
-                           f'HID interfaces at {identity[0]:04x}:{identity[1]:04x}: {details}')
+                           f'HID interfaces at the requested USB IDs: {details}')
     dev = hid.device()
     try:
         dev.open_path(devices[0]['path'])
@@ -156,13 +162,14 @@ def keyboard_window(device):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--probe', action='store_true', help='check enumeration and echo with zero input')
-    parser.add_argument('--usb-id', type=usb_id, default=TEST_USB_ID,
-                        help='firmware USB VID:PID in hex (default: private test ID 1209:0001)')
+    parser.add_argument('--usb-id', type=usb_id, help='restrict detection to this USB VID:PID in hex')
+    parser.add_argument('--manufacturer', default=PUBLIC_MANUFACTURER,
+                        help='exact manufacturer string for shared HID 16c0:05df')
     args = parser.parse_args()
     try:
         import hid
         echoes = 3 if args.probe else 1
-        device = connect(hid, echoes, identity=args.usb_id)
+        device = connect(hid, echoes, identity=args.usb_id, manufacturer=args.manufacturer)
         print(f'T3P DOOM HID found; echo verified ({echoes}/{echoes}).', flush=True)
         if args.probe:
             device.close()

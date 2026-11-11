@@ -1,0 +1,23 @@
+{
+  "revision": 66,
+  "hardware": {
+    "device": "ATORCH T3P",
+    "host": "Windows",
+    "owner_report": "PC見ながらゲームができるくらい速いぜ！",
+    "playable_from_pc_preview": true,
+    "measured_preview_fps": null,
+    "baseline_identity": "1209:0001",
+    "baseline_image_sha256": "eb29fd8878088d89d908f8529c191ec3b72efc75dfdfa50980eae7db1dd71801"
+  },
+  "public_build": {
+    "usb_identity": "16c0:05df with exact manufacturer and product strings",
+    "descriptor_enumeration_on_hardware": "pending",
+    "gameplay_and_capture_implementation": "same V66 path as the owner-tested private-ID build",
+    "image_sha256": "412402951504cffa6f9b3f371c643620ae4b53bdf82c81377d75b92cb2e71c99",
+    "payload_sha256": "8793d596dadca15180ed185ddb4a3bfd246097c7e82ce659d9469db1ab01dcae",
+    "manufacturer": "usb.pd.epr.240w@gmail.com",
+    "compiled_objects_differing_from_private_build": [
+      "t3p_usb_keys.c.o"
+    ]
+  }
+}

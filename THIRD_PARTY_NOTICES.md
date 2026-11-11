@@ -61,7 +61,7 @@ not grant this project a blanket redistribution license. SDK headers carrying
 facts; SDK source was not copied into the project's new native source files.
 
 The historical link probe and V58 build use the JieLi runtime archives as
-local build inputs. The V60 prebuilt app uses `native/runtime_division.c`
+local build inputs. The V60 and V66 prebuilt apps use `native/runtime_division.c`
 and omits all JieLi runtime archives from the link. The prebuilt kit contains
 only the DOOM app, offline packing tools, documentation and notices. The
 packer takes the original T3P 3.0.3 supplied locally by the user. The

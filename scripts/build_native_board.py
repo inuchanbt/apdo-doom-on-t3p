@@ -65,7 +65,8 @@ def main():
     usb_identity.add_argument('--private-usb-test', action='store_true',
                               help='Use the non-unique 1209:0001 ID for private testing only')
     usb_identity.add_argument('--usb-id', metavar='VID:PID',
-                              help='Use a USB VID:PID assigned to this project (hexadecimal)')
+                              help='Use an assigned or permitted shared USB VID:PID (hexadecimal)')
+    parser.add_argument('--usb-manufacturer', help='manufacturer string, including a domain or email you control')
     args=parser.parse_args()
     if args.release_app and (not args.doom or args.revision not in (58,59,60,61,62,63,64,65,66)):
         parser.error('--release-app requires --doom and revision 58 through 66')
@@ -93,6 +94,14 @@ def main():
             parser.error('--usb-id must be a hexadecimal VID:PID pair')
         if not (0 < vid < 0xffff and 0 <= pid <= 0xffff) or (vid == 0x1209 and pid < 0x2000):
             parser.error('--usb-id must use an assigned VID:PID outside the reserved pid.codes ranges')
+    shared_usb=(vid,pid)==(0x16c0,0x05df)
+    manufacturer=args.usb_manufacturer
+    if manufacturer and (not usb_keys or not args.usb_id):
+        parser.error('--usb-manufacturer requires --usb-id and a HID-enabled build')
+    if manufacturer and (not manufacturer.isascii() or not 1 <= len(manufacturer) <= 31):
+        parser.error('--usb-manufacturer must contain 1 to 31 ASCII characters')
+    if shared_usb and (not manufacturer or not ('.' in manufacturer or '@' in manufacturer)):
+        parser.error('Shared HID 16c0:05df requires a manufacturer string containing a domain or email you control')
     usb_capture=usb_keys and args.revision>=65
     fast_capture=usb_capture and args.revision==66
     # V50 through V66 inherit the V49 play configuration.
@@ -126,6 +135,7 @@ def main():
     assert revision>=2
     doom_dir='native-doom-integration' if revision==2 else f'native-doom-v{args.revision}'
     if args.release_app:doom_dir+='-prebuilt'
+    if shared_usb:doom_dir+='-public'
     out=ROOT/'artifacts'/(doom_dir if args.doom else f'native-bringup-v{revision}')
     out.mkdir(exist_ok=True)
     toolchain=args.toolchain.resolve();tools=toolchain/'bin'
@@ -248,7 +258,11 @@ def main():
             flags+=['-DT3P_SENSOR_CONTROLS',f'-DT3P_SENSOR_REVISION={args.revision}']
         if haptics:flags+=['-DT3P_HAPTICS']
         if usb_keys and name=='bsp_platform.c':flags+=['-DT3P_USB_KEYS']
-        if usb_keys and name=='t3p_usb_keys.c':flags += [f'-DT3P_USB_VID={vid}', f'-DT3P_USB_PID={pid}']
+        if usb_keys and name=='t3p_usb_keys.c':
+            flags += [f'-DT3P_USB_VID={vid}', f'-DT3P_USB_PID={pid}']
+            if manufacturer:
+                descriptor=bytes([2+len(manufacturer)*2,3])+manufacturer.encode('utf-16le')
+                flags += ['-DT3P_USB_MANUFACTURER_DESC='+','.join(str(byte) for byte in descriptor)]
         if usb_capture and name in ('bsp_platform.c','t3p_usb_keys.c'):flags+=['-DT3P_USB_CAPTURE']
         if fast_capture and name in ('bsp_platform.c','t3p_usb_keys.c'):flags+=['-DT3P_USB_CAPTURE_FAST']
         if uac_monitor and name in ('bsp_platform.c',menu_source):
@@ -557,7 +571,8 @@ def main():
         report['expected_display']='Freedoom startup logo, then continuous DOOM with the seamless status bar'
         report['pending'].append('physical startup banner and transition to gameplay')
     if usb_keys:
-        report['usb_identity']=dict(vid_pid=f'{vid:04x}:{pid:04x}', private_test=args.private_usb_test)
+        report['usb_identity']=dict(vid_pid=f'{vid:04x}:{pid:04x}', private_test=args.private_usb_test,
+                                    manufacturer=manufacturer, shared=shared_usb)
         report['source_sha256']['t3p_usb_keys.h']=digest((ROOT/'native/t3p_usb_keys.h').read_bytes())
         report['pending'].append('side USB HID enumeration, packet echo and keyboard control on hardware')
     if usb_capture:report['pending'].append('hardware live 120x120 HID capture while controlling the game')

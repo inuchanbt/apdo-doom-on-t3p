@@ -44,10 +44,17 @@ enum {
 #if !defined(T3P_USB_VID) || !defined(T3P_USB_PID)
 #error Supply the USB identity through build_native_board.py
 #endif
+#ifdef T3P_USB_MANUFACTURER_DESC
+#define USB_MANUFACTURER_INDEX 2
+static const uint8_t manufacturer_desc[] = { T3P_USB_MANUFACTURER_DESC };
+_Static_assert(sizeof(manufacturer_desc) <= PACKET, "Manufacturer string fits one control packet");
+#else
+#define USB_MANUFACTURER_INDEX 0
+#endif
 static const uint8_t device_desc[] = {
     18, 1, 0x00, 0x02, 0, 0, 0, PACKET,
     T3P_USB_VID & 0xff, T3P_USB_VID >> 8, T3P_USB_PID & 0xff, T3P_USB_PID >> 8,
-    USB_REVISION, 0x01, 0, 1, 0, 1
+    USB_REVISION, 0x01, USB_MANUFACTURER_INDEX, 1, 0, 1
 };
 static const uint8_t report_desc[] = {
     0x06, 0x61, 0xff, 0x09, 0x01, 0xa1, 0x01,
@@ -265,6 +272,9 @@ static void setup(void)
         case 0x0200: bytes = config_desc; size = sizeof(config_desc); break;
         case 0x0300: bytes = lang_desc; size = sizeof(lang_desc); break;
         case 0x0301: bytes = product_desc; size = sizeof(product_desc); break;
+#ifdef T3P_USB_MANUFACTURER_DESC
+        case 0x0302: bytes = manufacturer_desc; size = sizeof(manufacturer_desc); break;
+#endif
         case 0x2100: bytes = config_desc + 18; size = 9; break;
         case 0x2200: bytes = report_desc; size = sizeof(report_desc); break;
         }
