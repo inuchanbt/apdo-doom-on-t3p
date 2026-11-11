@@ -4,7 +4,7 @@
 
 ビルド済みDOOMアプリ、オフライン梱包ツール、PC用ライブキャプチャコントローラーのセット。Freedoom 0.13.0のE1M1をアプリに含む。手元の純正T3P 3.0.3から更新用ファイルを作り、そのブートローダーとリソースを引き継ぐ。純正ファイルは復旧用にも保管する。
 
-従来の非公開テストID版V66は、PCのプレビューを見ながら遊べることを実機確認済み。配布版は共用HID ID 16c0:05df、製造者usb.pd.epr.240w@gmail.com、製品名T3P DOOM V66を使う。記述子とPC側の完全一致照合はオフライン検査済み。配布版の新しいUSB識別情報での実機認識は確認待ち。[実機記録](../analysis/native-doom-v66-physical-result.json) · [USB IDの条件](USB_ID.md)。
+配布版V66をT3Pへ書き込み、正常動作を実機確認した。共用HID ID 16c0:05dfを使い、PC側は製造者と製品名を完全一致で照合する。ゲームとPC画面を見ながらのプレイも実機確認済み。[実機記録](../analysis/native-doom-v66-physical-result.json) · [USB IDの条件](USB_ID.md)。
 
 ## 更新用ファイルを作る
 
@@ -43,7 +43,7 @@ t3p-doom-v66-source.zipを展開する。変換ツール、指定版のdoomgener
 $Pi32 = 'C:/path/to/JL/pi32'
 py -3 scripts/prepare_lowres_game.py --converter-root ./converter
 py -3 scripts/build_engine.py --toolchain $Pi32
-py -3 scripts/build_native_board.py --toolchain $Pi32 --doom --revision 66 --release-app --usb-id 16c0:05df --usb-manufacturer usb.pd.epr.240w@gmail.com
+py -3 scripts/build_native_board.py --toolchain $Pi32 --doom --revision 66 --release-app --shared-usb
 ```
 
 artifacts/native-doom-v66-prebuilt-public/DO-NOT-FLASH-app-payload.binができる。release.jsonのpayload_sha256と照合できる。アプリはプロジェクトと取り込んだオープンソースのコードをリンクし、JieLiランタイムアーカイブを含めない。ライセンスと出典はCOPYING、THIRD_PARTY_NOTICES.md、同梱の各ライセンスを参照。

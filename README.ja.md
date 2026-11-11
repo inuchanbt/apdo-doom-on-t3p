@@ -34,9 +34,9 @@ py -3 scripts/t3p_pc_controller.py
 
 [PCコントローラー](http://127.0.0.1:50595/)を開いてキーボードを有効にする。WASDまたは矢印で移動・旋回、Spaceで発射、Eで扉やスイッチ、EscとEnterでメニューを操作する。プレビューの停止と、最新フレームのBMP保存もできる。
 
-**V66のビルド済みアプリとオフライン梱包ツール**は[Releases](https://github.com/inuchanbt/apdo-doom-on-t3p/releases/tag/v66)から取得できる。手元の純正T3P 3.0.3を使って更新用ファイルを生成する。対応ソースとPCコントローラーも同梱する。[導入と再ビルド](docs/PREBUILT.ja.md)。
+**V66のビルド済みアプリとオフライン梱包ツール**は[Releases](https://github.com/inuchanbt/apdo-doom-on-t3p/releases/tag/v66.0)から取得できる。手元の純正T3P 3.0.3を使って更新用ファイルを生成する。対応ソースとPCコントローラーも同梱する。[導入と再ビルド](docs/PREBUILT.ja.md)。
 
-配布版は共用HID ID 16c0:05dfを使い、製造者と製品名を完全一致で照合する。製造者文字列は公開者が管理するusb.pd.epr.240w@gmail.com。新しいUSB記述子はオフライン検査済み。ゲームとPC画面を見ながらのプレイは従来の非公開テストID版V66で実機確認した。配布版の新しいUSB識別情報での実機認識は確認待ち。[USB IDの利用条件](docs/USB_ID.md)。
+配布版は共用HID ID 16c0:05dfを使い、製造者と製品名を完全一致で照合する。配布版もT3Pへ書き込み、正常に動作することを実機確認した。ゲームとPC画面を見ながらのプレイも実機確認済み。[USB IDの利用条件](docs/USB_ID.md)。
 
 ## これまでの経緯
 

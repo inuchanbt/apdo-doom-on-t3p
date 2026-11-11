@@ -43,8 +43,8 @@ def main():
         'version': '66',
         'payload_sha256': manifest['payload_sha256'],
         'image_sha256': manifest['image_sha256'],
-        'usb': {**identity, 'product': 'T3P DOOM V66'},
-        'hardware_status': 'V66 gameplay and playable live preview confirmed with the private test ID; shared-ID enumeration pending',
+        'usb': dict(vid_pid=identity['vid_pid'], product='T3P DOOM V66', shared=True),
+        'hardware_status': 'Public V66 flashed and confirmed working by the owner; gameplay and playable PC live capture hardware-confirmed',
     }
     release_info = json.dumps(release, indent=2) + '\n'
     args.output.mkdir(parents=True, exist_ok=True)

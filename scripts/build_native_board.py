@@ -67,7 +67,13 @@ def main():
     usb_identity.add_argument('--usb-id', metavar='VID:PID',
                               help='Use an assigned or permitted shared USB VID:PID (hexadecimal)')
     parser.add_argument('--usb-manufacturer', help='manufacturer string, including a domain or email you control')
+    usb_identity.add_argument('--shared-usb', action='store_true',
+                              help='Use the release shared HID identity and its configured manufacturer')
     args=parser.parse_args()
+    if args.shared_usb:
+        from t3p_pc_keyboard import PUBLIC_MANUFACTURER
+        args.usb_id='16c0:05df'
+        args.usb_manufacturer=PUBLIC_MANUFACTURER
     if args.release_app and (not args.doom or args.revision not in (58,59,60,61,62,63,64,65,66)):
         parser.error('--release-app requires --doom and revision 58 through 66')
     if not args.release_app:

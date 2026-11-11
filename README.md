@@ -34,9 +34,9 @@ py -3 scripts/t3p_pc_controller.py
 
 Open [the local controller](http://127.0.0.1:50595/) and enable keyboard input. Use WASD or the arrows to move and turn, Space to fire, E to use a door or switch, and Esc/Enter for the menu. You can pause the preview or save the latest frame as a BMP.
 
-Download the **V66 prebuilt app and offline packer kit** from [Releases](https://github.com/inuchanbt/apdo-doom-on-t3p/releases/tag/v66). Supply your own exact stock T3P 3.0.3 file to generate the update image locally. The release also includes the corresponding source and PC controller. [Install and rebuild](docs/PREBUILT.md).
+Download the **V66 prebuilt app and offline packer kit** from [Releases](https://github.com/inuchanbt/apdo-doom-on-t3p/releases/tag/v66.0). Supply your own exact stock T3P 3.0.3 file to generate the update image locally. The release also includes the corresponding source and PC controller. [Install and rebuild](docs/PREBUILT.md).
 
-The public build uses shared HID 16c0:05df and matches the complete manufacturer and product strings. Its manufacturer is usb.pd.epr.240w@gmail.com, confirmed by the publisher. The shared-ID descriptors have offline checks. Hardware gameplay and playable capture were confirmed with the earlier private-ID V66 build. The public USB identity still needs hardware verification. [Identity conditions](docs/USB_ID.md).
+The public build uses shared HID 16c0:05df and matches the complete manufacturer and product strings. The owner flashed the public build and confirmed normal operation on the T3P. Gameplay and playable PC live capture are hardware-confirmed. [Identity conditions](docs/USB_ID.md).
 
 ## Bring-up and performance
 

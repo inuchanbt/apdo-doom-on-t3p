@@ -4,7 +4,7 @@
 
 The kit contains the compiled DOOM app with Freedoom 0.13.0 E1M1, an offline Python packer and the PC keyboard/live-capture controller. Supply your own exact ATORCH T3P 3.0.3 image. The packer preserves its bootloader and resources. Keep that original for recovery.
 
-The owner played from the PC preview using the private-ID V66 build. The public build uses shared HID 16c0:05df with manufacturer usb.pd.epr.240w@gmail.com and product T3P DOOM V66. Its descriptor and host matching have offline tests. Hardware enumeration of this public identity remains pending. [Hardware record](../analysis/native-doom-v66-physical-result.json) · [Shared-ID conditions](USB_ID.md).
+The public V66 build was flashed and confirmed working on the owner's T3P. It uses shared HID 16c0:05df, with exact manufacturer and product matching in the PC controller. Gameplay and playable PC live capture are hardware-confirmed. [Hardware record](../analysis/native-doom-v66-physical-result.json) · [Shared-ID conditions](USB_ID.md).
 
 ## Generate and install the update
 
@@ -41,7 +41,7 @@ Extract t3p-doom-v66-source.zip. It contains the modified converter, its pinned 
 $Pi32 = 'C:/path/to/JL/pi32'
 py -3 scripts/prepare_lowres_game.py --converter-root ./converter
 py -3 scripts/build_engine.py --toolchain $Pi32
-py -3 scripts/build_native_board.py --toolchain $Pi32 --doom --revision 66 --release-app --usb-id 16c0:05df --usb-manufacturer usb.pd.epr.240w@gmail.com
+py -3 scripts/build_native_board.py --toolchain $Pi32 --doom --revision 66 --release-app --shared-usb
 ```
 
 The app is artifacts/native-doom-v66-prebuilt-public/DO-NOT-FLASH-app-payload.bin. Compare its SHA-256 to payload_sha256 in release.json. The release uses project and vendored open-source objects and omits all JieLi runtime archives. The original Freedoom art and maps are available in the [0.13.0 source release](https://github.com/freedoom/freedoom/tree/v0.13.0). Retain COPYING, THIRD_PARTY_NOTICES.md and all upstream notices.
